@@ -1,9 +1,14 @@
 import { LANG } from './config';
+import * as db from './db';
 import { getLocale } from './i18n';
 import { MessageContext, SendFn } from './types';
 
+function getLang(): string {
+  return db.getSetting('language') || LANG;
+}
+
 function t() {
-  return getLocale(LANG);
+  return getLocale(getLang());
 }
 
 export async function handleCommand(
@@ -14,14 +19,15 @@ export async function handleCommand(
   const trimmed = text.trim();
   const lower = trimmed.toLowerCase();
 
+  const locale = t();
+
+  // Returns true if lower matches any of the given aliases OR the locale command name
+  const matches = (key: keyof typeof locale.commands, ...aliases: string[]) =>
+    aliases.includes(lower) ||
+    lower === locale.commands[key].name.toLowerCase();
+
   // Help command
-  if (
-    lower === 'help' ||
-    lower === 'h' ||
-    lower === '?' ||
-    lower === 'commands'
-  ) {
-    const locale = t();
+  if (matches('help', 'help', 'h', '?', 'commands')) {
     const lines = Object.values(locale.commands).map(
       (cmd) => `*${cmd.name}*: ${cmd.desc}`,
     );
@@ -29,9 +35,20 @@ export async function handleCommand(
     return;
   }
 
+  // Language command
+  if (lower.startsWith('lang ')) {
+    const lang = lower.slice(5).trim();
+    if (!['en', 'es', 'pt'].includes(lang)) {
+      await send(locale.responses.langInvalid);
+      return;
+    }
+    db.setSetting('language', lang);
+    await send(getLocale(lang).responses.langChanged);
+    return;
+  }
+
   // Motivate command
-  if (lower === 'msg' || lower === 'motivate') {
-    const locale = t();
+  if (matches('msg', 'msg', 'motivate')) {
     const msgs = locale.motivationalMessages;
     const random = msgs[Math.floor(Math.random() * msgs.length)];
     await send(`${locale.responses.motivatePrefix}\n\n${random}`);
@@ -39,7 +56,7 @@ export async function handleCommand(
   }
 
   // Status command
-  if (lower === 'status') {
+  if (matches('status', 'status')) {
     const time = ctx.timestamp.toLocaleString();
     const chat = ctx.isGroup
       ? `👥 ${ctx.groupName ?? ctx.chatId}`
@@ -58,11 +75,11 @@ export async function handleCommand(
   }
 
   // Ping command
-  if (lower === 'ping') {
-    await send(t().responses.ping);
+  if (matches('ping', 'ping')) {
+    await send(locale.responses.ping);
     return;
   }
 
   // Unknown command
-  await send(t().responses.unknown);
+  await send(locale.responses.unknown);
 }

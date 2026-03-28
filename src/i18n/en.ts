@@ -51,6 +51,8 @@ export const en = {
     ping: 'Pong! 🏓',
     unknown:
       "Sorry, I didn't understand that command. Type *help* to see available commands.",
+    langChanged: '🌐 Language changed to English!',
+    langInvalid: '❌ Invalid language. Available: en, es, pt',
   },
 };
 
