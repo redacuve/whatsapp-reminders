@@ -16,9 +16,26 @@ export interface MessageContext {
   botPlatform: string;
 }
 
-export type CommandKey = 'help' | 'msg' | 'status' | 'ping';
+export type CommandKey =
+  | 'help'
+  | 'msg'
+  | 'status'
+  | 'ping'
+  | 'pomodoro'
+  | 'lang';
 
 export interface CommandDef {
   name: string;
   desc: string;
+  subcommands?: string[];
+}
+
+export interface PomodoroRow {
+  id: number;
+  number: string;
+  task: string;
+  duration_minutes: number;
+  started_at: string;
+  due_at: string;
+  completed: number;
 }

@@ -60,11 +60,15 @@ src/
 ├── main.ts        # Entry point — WhatsApp client, message routing, gating
 ├── config.ts      # Environment variables (phone numbers, paths, language)
 ├── commands.ts    # Command parsing and handlers
+├── scheduler.ts   # Cron jobs — checks due pomodoros every minute
+├── db.ts          # SQLite layer (settings, pomodoros)
 ├── logger.ts      # Pino logger instance
 ├── types.ts       # Shared TypeScript interfaces
 └── i18n/
     ├── index.ts   # i18n manager (getLocale)
-    └── en.ts      # 🇺🇸 English locale (commands, responses, motivational messages)
+    ├── en.ts      # 🇺🇸 English locale
+    ├── es.ts      # 🇲🇽 Spanish locale
+    └── pt.ts      # 🇧🇷 Portuguese locale
 ```
 
 ## Getting Started
@@ -134,6 +138,41 @@ Commands are case-insensitive:
 | `msg` | `motivate` | Send a random motivational message |
 | `status` | — | Show sender info + bot info |
 | `ping` | — | Responds with pong 🏓 |
+| `pomodoro` | `pomo` | Start, check, or cancel a pomodoro timer |
+| `lang <code>` | — | Change language (`en`, `es`, `pt`) |
+
+### Pomodoro
+
+All forms work with `pomodoro` or `pomo` (or the locale equivalent):
+
+| Input | Minutes | Task |
+|---|---|---|
+| `pomodoro` | 25 | Default task name |
+| `pomodoro 20` | 20 | Default task name |
+| `pomodoro my task` | 25 | "my task" |
+| `pomodoro 10 my task` | 10 | "my task" |
+
+#### Subcommands
+
+| Input | Description |
+|---|---|
+| `pomodoro help` | Show the subcommand list |
+| `pomodoro status` | Show the active pomodoro and minutes remaining |
+| `pomodoro cancel` | Cancel the active pomodoro |
+
+> In Spanish: `pomodoro ayuda` / `pomodoro estado` / `pomodoro cancelar`  
+> In Portuguese: `pomodoro ajuda` / `pomodoro status` / `pomodoro cancelar`
+
+#### Behavior when a pomodoro is already running
+
+| Input | Result |
+|---|---|
+| `pomodoro` | Shows current status (same as `pomodoro status`) |
+| `pomodoro 20` | Updates the timer to 20 min, keeps the current task |
+| `pomodoro new task` | Updates the task name, keeps the current duration |
+| `pomodoro 20 new task` | Updates both timer and task |
+
+When the timer expires, the bot sends a completion message directly to the chat that started it.
 
 ### `status` response includes
 
@@ -143,9 +182,33 @@ Commands are case-insensitive:
 
 ## Internationalization
 
-The bot supports multiple languages. The active language is resolved from the `LANG` environment variable (e.g. `es_MX.UTF-8` → `es`), with fallback to `en`.
+The bot supports multiple languages. Each user has their own language preference stored in SQLite — changing the language only affects that user, not others.
 
-To add a new language, create a new file in `src/i18n/` following the structure of `en.ts`, then register it in `src/i18n/index.ts`.
+The default language for new users is resolved from the `LANG` environment variable (e.g. `es_MX.UTF-8` → `es`), with fallback to `en`.
+
+### Changing language
+
+Any user can change their own language at any time:
+
+```
+lang en
+lang es
+lang pt
+```
+
+The `help`, `pomodoro`, and completion messages will instantly switch to the selected language for that user.
+
+### Supported languages
+
+| Code | Language | Pomodoro subcommand keywords |
+|---|---|---|
+| `en` | 🇺🇸 English | `help`, `status`, `cancel` |
+| `es` | 🇲🇽 Español | `ayuda`, `estado`, `cancelar` |
+| `pt` | 🇧🇷 Português | `ajuda`, `status`, `cancelar` |
+
+### Adding a new language
+
+Create a new file in `src/i18n/` following the structure of `en.ts`, then register it in `src/i18n/index.ts`. Update the validation in `commands.ts` to include the new code.
 
 ## Contributing
 

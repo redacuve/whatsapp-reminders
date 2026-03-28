@@ -1,9 +1,10 @@
 import qrcode from 'qrcode-terminal';
-import { Chat, Client, LocalAuth, Message } from 'whatsapp-web.js';
+import { Chat, Client, Contact, LocalAuth } from 'whatsapp-web.js';
 
 import { handleCommand } from './commands';
 import { MY_GROUP, MY_NUMBER, MY_NUMBER_LID, SESSION_PATH } from './config';
 import { Logger } from './logger';
+import { startScheduler } from './scheduler';
 
 const client = new Client({
   authStrategy: new LocalAuth({ dataPath: SESSION_PATH }),
@@ -38,6 +39,10 @@ client.on('ready', () => {
     },
     '✅ WhatsApp Reminders bot is ready!',
   );
+
+  startScheduler(async (chatId: string, message: string) => {
+    await client.sendMessage(chatId, message);
+  });
 });
 
 client.on('message', async (message) => {
@@ -89,7 +94,7 @@ client.on('message', async (message) => {
       senderPushName: contact.pushname,
       senderNumber: contact.number,
       senderIsBusiness: contact.isBusiness,
-      senderLanguage: (contact as any).language ?? undefined,
+      senderLanguage: (contact as Contact & { language?: string }).language,
       botNumber: client.info.wid._serialized,
       botName: client.info.pushname,
       botPlatform: client.info.platform,

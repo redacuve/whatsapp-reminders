@@ -5,6 +5,20 @@ const commands: Record<CommandKey, CommandDef> = {
   msg: { name: 'Motivate', desc: 'Send a motivational message now' },
   status: { name: 'Status', desc: 'Show bot status' },
   ping: { name: 'Ping', desc: 'Responds with pong' },
+  lang: {
+    name: 'Language',
+    desc: 'Change your language — lang <code> (en, es, pt)',
+  },
+  pomodoro: {
+    name: 'Pomodoro',
+    desc: 'Pomodoro timer',
+    subcommands: [
+      'pomodoro [mins] [task] — start (defaults: 25 min, "Focus session")',
+      'pomodoro status — show active timer',
+      'pomodoro cancel — cancel active timer',
+      'pomodoro help — show this list',
+    ],
+  },
 };
 
 const motivationalMessages = [
@@ -53,6 +67,51 @@ export const en = {
       "Sorry, I didn't understand that command. Type *help* to see available commands.",
     langChanged: '🌐 Language changed to English!',
     langInvalid: '❌ Invalid language. Available: en, es, pt',
+    invalidArgs: '❌ Invalid arguments. Check the command format.',
+    pomodoroStarted: (task: string, mins: number) =>
+      `⏱️ Pomodoro started! *${task}* — ${mins} min. I'll remind you when it's done.`,
+    pomodoroDefaultTask: 'Focus session',
+    pomodoroStart: [
+      'Starting up. Focus and give it your all.',
+      'Focus mode activated. No distractions.',
+      'Begin your session. One thing at a time.',
+      'Time to work. Your future self will thank you.',
+      'Total focus. Turn off notifications and go.',
+      'Session started. Nothing else exists right now.',
+      'Lock in. This is your time.',
+      'Deep work begins now. Make it count.',
+      'Every minute matters. Stay with it.',
+      'No interruptions. Just you and the work.',
+      'Your goals are waiting. Go get them.',
+      'Clear mind, full effort. Start strong.',
+    ],
+    pomodoroEnd: [
+      'Done. Enjoy your break.',
+      'Session complete. Good job, take a breather.',
+      'Finished. Stand up, stretch, and breathe.',
+      'Focus time over. Take a moment for yourself.',
+      'You did it. Rest and come back stronger.',
+      "Time's up. Celebrate the effort.",
+      'Well done. Rest is part of the process.',
+      'One more session down. You are building momentum.',
+      'Great work. Step away and recharge.',
+      'That was solid. Breathe, move, then return.',
+      'Session over. Your effort compounded today.',
+      'Done and dusted. Take your break — you earned it.',
+    ],
+    pomodoroAlreadyActive:
+      '❌ You already have an active pomodoro. Finish it first.',
+    pomodoroNoActive: '❌ No active pomodoro.',
+    pomodoroStatus: (task: string, minsLeft: number) =>
+      `⏱️ Active: *${task}* — ${minsLeft} min remaining.`,
+    pomodoroCancelled: '✅ Pomodoro cancelled.',
+    pomodoroUpdated: (task: string, mins: number) =>
+      `🔄 Pomodoro updated! *${task}* — ${mins} min remaining.`,
+    pomodoroHelpCmd: 'help',
+    pomodoroStatusCmd: 'status',
+    pomodoroCancelCmd: 'cancel',
+    pomodoroDone: (task: string) =>
+      `✅ Pomodoro finished! Time's up for: *${task}*. Take a break! 🎉`,
   },
 };
 
