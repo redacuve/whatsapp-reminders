@@ -9,3 +9,4 @@ dotenv.config({ path: path.join(ROOT_DIR, ".env") });
 export const MY_NUMBER = process.env.MY_NUMBER ?? "";
 export const MY_NUMBER_LID = process.env.MY_NUMBER_LID ?? "";
 export const MY_GROUP = process.env.MY_GROUP ?? "";
+export const SESSION_PATH = path.join(ROOT_DIR, '.wwebjs_auth');
