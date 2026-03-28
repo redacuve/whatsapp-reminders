@@ -1,0 +1,25 @@
+{
+  "name": "whatsapp-reminders",
+  "version": "0.1.0",
+  "description": "A bot that sends reminders to a number on WhatsApp",
+  "main": "main.ts",
+  "scripts": {
+    "dev": "tsx src/main.ts",
+    "watch": "tsx watch src/main.ts",
+    "check": "tsc --noEmit",
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "redacuve",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1"
+  }
+}
