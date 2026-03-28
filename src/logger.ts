@@ -21,7 +21,8 @@ const Logger = pino({
         ignore: 'pid,hostname,env',
         messageFormat: '{msg}',
         levelFirst: true,
-        customColors: 'fatal:bgRed,error:red,warn:yellow,info:cyan,debug:gray,trace:white',
+        customColors:
+          'fatal:bgRed,error:red,warn:yellow,info:cyan,debug:gray,trace:white',
         customLevels: '',
         useOnlyCustomProps: false,
         singleLine: false,
