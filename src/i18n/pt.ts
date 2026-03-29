@@ -1,4 +1,4 @@
-import { CommandDef, CommandKey } from '../types';
+import { CommandDef, CommandKey, EMOJI_KEYWORDS, Locale } from '../types';
 
 const commands: Record<CommandKey, CommandDef> = {
   help: { name: 'Ajuda', desc: 'Mostrar comandos disponíveis' },
@@ -71,7 +71,7 @@ const motivationalMessages = [
   'Conforto é uma morte lenta. Escolha o desafio.',
 ];
 
-export const pt = {
+export const pt: Locale = {
   code: 'pt',
   name: 'Português',
   tomorrowKeywords: ['amanhã', 'amanha'],
@@ -89,7 +89,7 @@ export const pt = {
     'a noite': 21,
     'de noite': 21,
     noite: 21,
-  } as Record<string, number>,
+  },
   commands,
   motivationalMessages,
   responses: {
@@ -97,7 +97,7 @@ export const pt = {
     status: 'O bot está funcionando perfeitamente! ✅',
     ping: 'Pong! 🏓',
     unknown:
-      'Desculpe, não entendi esse comando. Digite *ajuda* para ver os comandos disponíveis.',
+      'Hmm, não tenho certeza do que você quer dizer 🤔 Digite *ajuda* e te mostro tudo que posso fazer!',
     langChanged: '🌐 Idioma alterado para Português!',
     langInvalid: '❌ Idioma inválido. Disponíveis: en, es, pt',
     invalidArgs: '❌ Argumentos inválidos. Verifique o formato do comando.',
@@ -161,5 +161,221 @@ export const pt = {
     reminderDeleteCmd: 'apagar',
     reminderEditCmd: 'editar',
     reminderHelpCmd: 'ajuda',
+    greetingKeywords: [
+      'olá',
+      'ola',
+      'oi',
+      'e aí',
+      'e ai',
+      'bom dia',
+      'boa tarde',
+      'boa noite',
+      'hey',
+      'fala',
+    ],
+    greetings: {
+      morning: [
+        (name: string) =>
+          `Bom dia, ${name}! ☀️ Eu sou *Remi*, seu parceiro pessoal de produtividade.\n\nPosso enviar mensagens motivacionais, gerenciar timers pomodoro e configurar lembretes — tudo aqui no WhatsApp. Tô aqui pra te ajudar a manter o foco e a organização no dia a dia.\n\nDigite *ajuda* pra ver tudo que posso fazer!`,
+        (name: string) =>
+          `Bora, ${name}! 🌅 Eu sou *Remi*, seu parceiro pessoal de produtividade.\n\nNovo dia, novas chances de arrasar! Tô pronto com mensagens motivacionais, timers pomodoro e lembretes pra você começar voando.\n\nDigite *ajuda* pra começar!`,
+        (name: string) =>
+          `Dia, ${name}! ☕ Sou *Remi*, seu parceiro pessoal de produtividade.\n\nPega o café e bora trabalhar! Te ajudo com timers pomodoro, lembretes e motivação sempre que precisar. Hoje vai ser um dia incrível.\n\nDigite *ajuda* pra ver o que posso fazer!`,
+        (name: string) =>
+          `E aí, ${name}! 🌞 Bom dia! Sou *Remi*, seu parceiro pessoal de produtividade.\n\nDeus ajuda quem cedo madruga — e o Remi também! Mensagens motivacionais, timers pomodoro e lembretes, tudo na palma da mão.\n\nDigite *ajuda* quando estiver pronto!`,
+      ],
+      afternoon: [
+        (name: string) =>
+          `E aí, ${name}! 👋 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nPosso te motivar, gerenciar timers pomodoro e configurar lembretes pra nada passar batido. Como tá a tarde? Tô aqui se precisar de uma mãozinha.\n\nDigite *ajuda* se precisar de algo!`,
+        (name: string) =>
+          `Boa tarde, ${name}! 🌤️ Sou *Remi*, seu parceiro pessoal de produtividade.\n\nIntervalo do dia — você consegue! Tô aqui com motivação, timers pomodoro e lembretes pro que falta.\n\nDigite *ajuda* pra ver tudo que posso fazer!`,
+        (name: string) =>
+          `Fala, ${name}! ☀️ Sou *Remi*, seu parceiro pessoal de produtividade.\n\nCheck de energia da tarde! Precisa de um empurrãozinho? Tenho mensagens motivacionais, pomodoros e lembretes prontos.\n\nDigite *ajuda* pra manter o ritmo!`,
+        (name: string) =>
+          `E aí, ${name}! 💪 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nA tarde é hora de meter bronca. Deixa eu te ajudar com pomodoros, lembretes ou uma mensagem motivacional!\n\nDigite *ajuda* pra ver as opções!`,
+      ],
+      evening: [
+        (name: string) =>
+          `Boa noite, ${name}! 🌙 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nSeja uma dose de motivação, um timer pomodoro ou um lembrete pra amanhã — pode contar comigo. Fechando o dia? Tô aqui.\n\nDigite *ajuda* pra ver o que posso fazer!`,
+        (name: string) =>
+          `E aí, ${name}! 🌆 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nRelaxando ou pegando o segundo fôlego? De qualquer forma, tô aqui com motivação, timers e lembretes.\n\nDigite *ajuda* se precisar de algo!`,
+        (name: string) =>
+          `Boa, ${name}! 🌇 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nMandou bem hoje! Se ainda tem coisa pra fazer, tenho pomodoros e lembretes. Ou já prepara tudo pra amanhã.\n\nDigite *ajuda* pra ver suas opções!`,
+        (name: string) =>
+          `E aí, ${name}! ✨ Sou *Remi*, seu parceiro pessoal de produtividade.\n\nA noite é ótima pra planejar. Precisa de um lembrete pra amanhã ou uma sessão rápida de foco? Tô aqui.\n\nDigite *ajuda* quando quiser!`,
+      ],
+      night: [
+        (name: string) =>
+          `E aí, ${name}! 🌃 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nPosso te ajudar com mensagens motivacionais, timers pomodoro e lembretes — tudo pelo WhatsApp. Ainda na labuta? Não esquece de se cuidar também.\n\nDigite *ajuda* quando quiser!`,
+        (name: string) =>
+          `E aí, ${name}! 🦉 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nQueimando o óleo da meia-noite? Respeito a dedicação! Te ajudo com timers e lembretes — mas não esquece de descansar.\n\nDigite *ajuda* pra ver o que posso fazer!`,
+        (name: string) =>
+          `Ainda acordado, ${name}? 🌙 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nModo produtividade noturna ativado! Tenho mensagens motivacionais, pomodoros e lembretes prontos. Só lembra que dormir também é produtivo!\n\nDigite *ajuda* quando precisar!`,
+        (name: string) =>
+          `E aí, ${name}! 💤 Sou *Remi*, seu parceiro pessoal de produtividade.\n\nVibes de coruja! Seja fechando o dia ou começando agora, tô aqui com tudo. Mas vai com calma, se cuida!\n\nDigite *ajuda* pra ver suas opções!`,
+      ],
+    },
+    farewellKeywords: [
+      'tchau',
+      'adeus',
+      'até logo',
+      'ate logo',
+      'bye',
+      'falou',
+      'flw',
+      'boa noite',
+      'até amanhã',
+    ],
+    helpHint:
+      '\n\n_Também posso bater papo! Digite *remi* pra me conhecer melhor. 💬_',
+    remiAbout: (name: string) =>
+      `E aí, ${name}! 🤖 Sou *Remi*, e aqui está tudo que eu entendo:\n\n📋 *Comandos*\n  › *ajuda* — ver todos os meus comandos de produtividade\n  › *motivar* — receber uma mensagem motivacional\n  › *pomodoro* — sessões de foco com timer\n  › *lembrar* — criar e gerenciar lembretes\n  › *lang* — mudar idioma (en/es/pt)\n  › *status* — ver suas infos e as minhas\n  › *ping* — verificar se tô vivo\n\n💬 *Também entendo conversa casual:*\n  › Saudações — _"oi", "fala", "bom dia"_\n  › Despedidas — _"tchau", "falou", "até logo"_\n  › Agradecimento — _"valeu", "obrigado"_\n  › Como vai? — _"tudo bem", "como vai"_\n  › Elogios — _"top", "demais", "show"_\n  › Desculpas — _"desculpa", "foi mal"_\n  › Risadas — _"kkk", "haha"_\n  › Emojis — _👍 🔥 💪 🙌 👏 🎉_\n  › Quem é você? — _"quem é remi"_\n  › O que você faz? — _"o que você faz"_\n\nEu me adapto à hora do dia e te chamo pelo nome. Pode falar comigo de boa! 😊`,
+    farewells: [
+      'Até mais! 👋 Vai lá e arrasa.',
+      'Falou! Estarei aqui quando precisar. 💪',
+      'Até! Lembra: passos pequenos, grandes resultados. 🚀',
+      'Se cuida! Você tá mandando bem. 👋',
+      'Até mais! Não esquece de descansar também. ✌️',
+      'Até a próxima! Continua sendo incrível. 🌟',
+      'Vai lá! Fico aqui te esperando. 😊',
+      'Flw! Vai e faz acontecer. ✨',
+    ],
+    thanksKeywords: [
+      'obrigado',
+      'obrigada',
+      'valeu',
+      'vlw',
+      'thanks',
+      'brigado',
+      'brigada',
+    ],
+    thanks: [
+      'Tô aqui pra isso! 😊',
+      'De nada! 💪',
+      'Que bom que ajudou! Continua assim. 🚀',
+      'Sem problemas! Precisa de mais alguma coisa?',
+      'Disponha! Hoje você tá voando. 🔥',
+      'Sempre! Pra isso que servem os parceiros. 🤝',
+      'Que bom que pude ajudar! O que vem agora?',
+      'Imagina! A gente é time. 💪',
+    ],
+    howAreYouKeywords: [
+      'como você está',
+      'como voce esta',
+      'tudo bem',
+      'tudo bom',
+      'e aí remi',
+      'e ai remi',
+      'como vai',
+    ],
+    howAreYou: [
+      'Na ativa! ⚡ Mais importante, como *você* tá?',
+      'Rodando lisinho e pronto pra ajudar! O que posso fazer? 🤖',
+      'Tô ótimo! Pronto pra encarar qualquer coisa. O que tem pra hoje?',
+      'Aqui, carregado e pronto! ⚡ Do que você precisa?',
+      'Vivendo minha melhor vida de bot! 😄 E você?',
+      'Melhor impossível! Tem grandes planos pra hoje? 🚀',
+      'No topo do mundo! Bom, no topo do seu chat pelo menos. 😏 E aí?',
+    ],
+    emojiKeywords: EMOJI_KEYWORDS,
+    emojiReactions: [
+      'Essa é a atitude! 🔥',
+      'Bora! 💪',
+      'Tá voando! Continua assim. 🚀',
+      'Adoro a energia! ⚡',
+      'É assim que se faz! 👏',
+      'As vibes tão impecáveis! ✨',
+      'Agora sim! 🙌',
+      'Você + produtividade = imparável. 🔥',
+    ],
+    whoAreYouKeywords: [
+      'quem é você',
+      'quem e voce',
+      'o que é você',
+      'o que e voce',
+      'quem é o remi',
+      'quem e o remi',
+      'quem é remi',
+      'quem e remi',
+    ],
+    whoAreYou: [
+      'Eu sou *Remi*! 🤖 Seu parceiro de produtividade pessoal aqui no WhatsApp. Posso te motivar, gerenciar timers pomodoro e configurar lembretes pra nada passar batido. Digite *ajuda* pra ver tudo!',
+      'Fala! Sou *Remi* — pensa em mim como seu sócio de produtividade de bolso. 💪 Mensagens motivacionais, sessões de foco pomodoro e lembretes inteligentes. É o meu forte!',
+      'Meu nome é *Remi*! Moro no seu WhatsApp pra te ajudar a manter o foco e a organização. Timers, lembretes, motivação — tenho o kit completo. Digite *ajuda* pra explorar!',
+    ],
+    whatCanYouDoKeywords: [
+      'o que você faz',
+      'o que voce faz',
+      'o que você pode fazer',
+      'o que voce pode fazer',
+      'como funciona',
+      'quais são seus comandos',
+      'quais sao seus comandos',
+      'funcionalidades',
+    ],
+    whatCanYouDo: [
+      'Isso é o que posso fazer por você! 🚀\n\n💪 *Mensagens motivacionais* — inspiração instantânea\n⏱️ *Timers pomodoro* — mantenha o foco com sessões\n⏰ *Lembretes* — te aviso na hora certa\n🌐 *Multi-idioma* — falo português, espanhol e inglês\n\nDigite *ajuda* pra lista completa de comandos!',
+    ],
+    laughKeywords: [
+      'haha',
+      'hahaha',
+      'kkk',
+      'kkkk',
+      'kkkkk',
+      'lol',
+      'rs',
+      'rsrs',
+      '😂',
+      '🤣',
+    ],
+    laughResponses: [
+      'Haha que bom que te fiz sorrir! 😄',
+      '😂 Essa é a energia! Precisa de algo?',
+      'Rir é o melhor hack de produtividade. 😄 O que vem agora?',
+      'Hehe, eu tento! Precisa de uma mão? 😏',
+      'Haha! Só boas vibras hoje. 😄 No que posso ajudar?',
+      'Adoro! Mantém essa energia. 😁',
+    ],
+    complimentKeywords: [
+      'legal',
+      'demais',
+      'incrivel',
+      'incrível',
+      'top',
+      'show',
+      'massa',
+      'bom trabalho',
+      'mandou bem',
+      'perfeito',
+      'nice',
+      'cool',
+      'sensacional',
+      'animal',
+      'genial',
+    ],
+    complimentResponses: [
+      'Ah, valeu! Você que é demais. 😊',
+      'Isso significa muito! Bora manter esse impulso. 💪',
+      'Você tá me fazendo corar! 😊 No que mais posso ajudar?',
+      'De volta pra você! Tá arrasando hoje. 🔥',
+      'Para, você me deixa sem jeito! 🥹 Precisa de mais alguma coisa?',
+      'Elogios te levam longe! Haha, o que vem agora? 😄',
+    ],
+    sorryKeywords: [
+      'desculpa',
+      'desculpe',
+      'perdão',
+      'perdao',
+      'foi mal',
+      'sorry',
+    ],
+    sorryResponses: [
+      'Sem problema nenhum! Tá tudo bem. 😊 No que posso ajudar?',
+      'Ei, sem necessidade de pedir desculpa! Tô aqui por você. 💪',
+      'Tudo tranquilo! Acontece com todo mundo. Do que precisa?',
+      'Relaxa! Bora pra frente. 🚀',
+      'Água embaixo da ponte! No que posso ajudar? 😊',
+      'De boa total! Acontece com todo mundo. Pronto quando quiser! 💪',
+    ],
   },
 };

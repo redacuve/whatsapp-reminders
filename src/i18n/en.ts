@@ -1,4 +1,4 @@
-import { CommandDef, CommandKey } from '../types';
+import { CommandDef, CommandKey, EMOJI_KEYWORDS, Locale } from '../types';
 
 const commands: Record<CommandKey, CommandDef> = {
   help: { name: 'Help', desc: 'Show available commands' },
@@ -71,7 +71,7 @@ const motivationalMessages = [
   'Comfort is a slow death. Choose challenge.',
 ];
 
-export const en = {
+export const en: Locale = {
   code: 'en',
   name: 'English',
   tomorrowKeywords: ['tomorrow'],
@@ -86,7 +86,7 @@ export const en = {
     night: 21,
     'at night': 21,
     tonight: 21,
-  } as Record<string, number>,
+  },
   commands,
   motivationalMessages,
   responses: {
@@ -94,7 +94,7 @@ export const en = {
     status: 'Bot is running smoothly! ✅',
     ping: 'Pong! 🏓',
     unknown:
-      "Sorry, I didn't understand that command. Type *help* to see available commands.",
+      "Hmm, I'm not sure what you mean 🤔 Type *help* and I'll show you everything I can do!",
     langChanged: '🌐 Language changed to English!',
     langInvalid: '❌ Invalid language. Available: en, es, pt',
     invalidArgs: '❌ Invalid arguments. Check the command format.',
@@ -158,7 +158,196 @@ export const en = {
     reminderDeleteCmd: 'delete',
     reminderEditCmd: 'edit',
     reminderHelpCmd: 'help',
+    greetingKeywords: [
+      'hello',
+      'hi',
+      'hey',
+      'hola',
+      'good morning',
+      'good afternoon',
+      'good evening',
+      "what's up",
+      'whats up',
+      'sup',
+    ],
+    greetings: {
+      morning: [
+        (name: string) =>
+          `Good morning, ${name}! ☀️ I'm *Remi*, your personal productivity sidekick.\n\nI can send you motivational messages, run pomodoro timers, and set reminders — all right here in WhatsApp. I'm here to help you stay focused and organized throughout your day.\n\nType *help* to see everything I can do for you!`,
+        (name: string) =>
+          `Rise and shine, ${name}! 🌅 I'm *Remi*, your personal productivity sidekick.\n\nNew day, new chances to crush it! I'm here with motivational messages, pomodoro timers, and reminders to keep you on track. Let's make today count!\n\nType *help* to get started!`,
+        (name: string) =>
+          `Morning, ${name}! ☕ I'm *Remi*, your personal productivity sidekick.\n\nGrab your coffee and let's get to work! I'll help you with pomodoro timers, reminders, and motivation whenever you need it. Today's going to be a good one.\n\nType *help* to see what I can do!`,
+        (name: string) =>
+          `Hey, ${name}! 🌞 Good morning! I'm *Remi*, your personal productivity sidekick.\n\nThe early bird gets the worm — and you've got me in your corner! Motivational messages, pomodoro timers, and reminders, all at your fingertips.\n\nType *help* whenever you're ready!`,
+      ],
+      afternoon: [
+        (name: string) =>
+          `Hey, ${name}! 👋 I'm *Remi*, your personal productivity sidekick.\n\nI can motivate you, manage pomodoro timers, and set reminders so nothing slips through the cracks. How's the day going? Need a hand staying on track?\n\nType *help* if you need anything!`,
+        (name: string) =>
+          `Good afternoon, ${name}! 🌤️ I'm *Remi*, your personal productivity sidekick.\n\nHalftime of the day — you've got this! I'm here with motivation, pomodoro timers, and reminders to power through the rest.\n\nType *help* to see everything I can do!`,
+        (name: string) =>
+          `Hey there, ${name}! ☀️ I'm *Remi*, your personal productivity sidekick.\n\nAfternoon energy check! Need a boost? I've got motivational messages, pomodoro timers, and reminders ready to go.\n\nType *help* to keep the momentum going!`,
+        (name: string) =>
+          `What's up, ${name}! 💪 I'm *Remi*, your personal productivity sidekick.\n\nThe afternoon is prime time for getting things done. Let me help with pomodoro timers, reminders, or a motivational pick-me-up!\n\nType *help* to see what's available!`,
+      ],
+      evening: [
+        (name: string) =>
+          `Good evening, ${name}! 🌙 I'm *Remi*, your personal productivity sidekick.\n\nWhether you need a motivational boost, a pomodoro timer, or a reminder for tomorrow — I've got you. Wrapping up the day? I'm here if you need me.\n\nType *help* to see what I can do!`,
+        (name: string) =>
+          `Hey, ${name}! 🌆 I'm *Remi*, your personal productivity sidekick.\n\nWindwinding down? Or just getting your second wind? Either way, I'm here with motivation, timers, and reminders whenever you need them.\n\nType *help* if you need anything!`,
+        (name: string) =>
+          `Evening, ${name}! 🌇 I'm *Remi*, your personal productivity sidekick.\n\nGreat job today! If there's still stuff to tackle, I've got pomodoro timers and reminders. Or just set things up for tomorrow.\n\nType *help* to see your options!`,
+        (name: string) =>
+          `Hey, ${name}! ✨ I'm *Remi*, your personal productivity sidekick.\n\nThe evening is a great time to plan ahead. Need a reminder for tomorrow or a quick focus session? I'm right here.\n\nType *help* whenever you're ready!`,
+      ],
+      night: [
+        (name: string) =>
+          `Hey, ${name}! 🌃 I'm *Remi*, your personal productivity sidekick.\n\nI can help you with motivational messages, pomodoro timers, and reminders — all through WhatsApp. Still grinding? Remember to take care of yourself too.\n\nType *help* whenever you need me!`,
+        (name: string) =>
+          `Hey, ${name}! 🦉 I'm *Remi*, your personal productivity sidekick.\n\nBurning the midnight oil? I respect the hustle! Let me help with timers and reminders so you can stay focused — but don't forget to rest.\n\nType *help* to see what I can do!`,
+        (name: string) =>
+          `Still up, ${name}? 🌙 I'm *Remi*, your personal productivity sidekick.\n\nLate-night productivity mode activated! I've got motivational messages, pomodoro timers, and reminders ready. Just don't forget sleep is productive too!\n\nType *help* when you need me!`,
+        (name: string) =>
+          `Hey, ${name}! 💤 I'm *Remi*, your personal productivity sidekick.\n\nNight owl vibes! Whether you're wrapping up or just starting, I'm here with timers, reminders, and motivation. Take it easy though!\n\nType *help* to see your options!`,
+      ],
+    },
+    farewellKeywords: [
+      'bye',
+      'goodbye',
+      'good bye',
+      'see you',
+      'see ya',
+      'later',
+      'cya',
+      'good night',
+      'gn',
+      'nite',
+    ],
+    helpHint: '\n\n_Also, I can chat! Type *remi* to learn more about me. 💬_',
+    remiAbout: (name: string) =>
+      `Hey, ${name}! 🤖 I'm *Remi*, and here's everything I understand:\n\n📋 *Commands*\n  › *help* — see all my productivity commands\n  › *msg* — get a motivational message\n  › *pomodoro* — focus timer sessions\n  › *remind* — set and manage reminders\n  › *lang* — change language (en/es/pt)\n  › *status* — see your info & mine\n  › *ping* — check if I'm alive\n\n💬 *I also understand casual conversation:*\n  › Greetings — _"hola", "hey", "good morning"_\n  › Farewells — _"bye", "see you", "good night"_\n  › Thanks — _"thanks", "thank you"_\n  › How are you? — _"how are you", "how r u"_\n  › Compliments — _"nice", "awesome", "great"_\n  › Apologies — _"sorry", "my bad"_\n  › Laughter — _"haha", "lol"_\n  › Emojis — _👍 🔥 💪 🙌 👏 🎉_\n  › Who are you? — _"who is remi"_\n  › What can you do? — _"what can you do"_\n\nI adapt to the time of day and call you by name. Feel free to talk to me like a friend! 😊`,
+    farewells: [
+      'See you later! 👋 Go crush it.',
+      "Bye! I'll be right here when you need me. 💪",
+      'Later! Remember: small steps, big results. 🚀',
+      "Take care! You're doing great. 👋",
+      "See ya! Don't forget to rest too. ✌️",
+      'Until next time! Keep being awesome. 🌟',
+      "Off you go! I'll be here waiting. 😊",
+      'Peace out! Go make things happen. ✨',
+    ],
+    thanksKeywords: ['thanks', 'thank you', 'thx', 'ty', 'gracias', 'obrigado'],
+    thanks: [
+      "Anytime! That's what I'm here for. 😊",
+      'You got it! 💪',
+      'Happy to help! Keep going. 🚀',
+      'No problem! Need anything else?',
+      "My pleasure! You're on fire today. 🔥",
+      "Always! That's what friends are for. 🤝",
+      "Glad I could help! What's next on the list?",
+      "Don't mention it! We're a team. 💪",
+    ],
+    howAreYouKeywords: [
+      'how are you',
+      'how are u',
+      'how r u',
+      'how you doing',
+      "what's up remi",
+      'whats up remi',
+    ],
+    howAreYou: [
+      'All systems go! ⚡ More importantly, how are *you* doing?',
+      'Running smooth and ready to help! What can I do for you? 🤖',
+      "I'm great! Ready to tackle anything. What's on your plate today?",
+      'Here and fully charged! ⚡ What do you need?',
+      'Living my best bot life! 😄 How about you?',
+      'Never been better! Got big plans today? 🚀',
+      "On top of the world! Well, on top of your chat at least. 😏 What's up?",
+    ],
+    emojiKeywords: EMOJI_KEYWORDS,
+    emojiReactions: [
+      "That's the spirit! 🔥",
+      "Let's go! 💪",
+      "You're on a roll! Keep it up. 🚀",
+      'Love the energy! ⚡',
+      "That's what I like to see! 👏",
+      'Vibes are immaculate! ✨',
+      "Now we're talking! 🙌",
+      'You + productivity = unstoppable. 🔥',
+    ],
+    whoAreYouKeywords: [
+      'who are you',
+      'who r u',
+      'what are you',
+      'who is remi',
+      "who's remi",
+      'whos remi',
+    ],
+    whoAreYou: [
+      "I'm *Remi*! 🤖 Your personal productivity sidekick right here in WhatsApp. I can motivate you, run pomodoro timers, and set reminders so you never miss a thing. Type *help* to see it all!",
+      "Hey! I'm *Remi* — think of me as your pocket productivity partner. 💪 Motivational messages, pomodoro focus sessions, and smart reminders. That's my jam!",
+      "Name's *Remi*! I live in your WhatsApp to help you stay focused and organized. Timers, reminders, motivation — I've got the whole kit. Type *help* to explore!",
+    ],
+    whatCanYouDoKeywords: [
+      'what can you do',
+      'what do you do',
+      'what are your commands',
+      'how do you work',
+      'how does this work',
+      'features',
+    ],
+    whatCanYouDo: [
+      "Here's what I can help you with! 🚀\n\n💪 *Motivational messages* — instant inspiration on demand\n⏱️ *Pomodoro timers* — stay focused with timed sessions\n⏰ *Reminders* — I'll ping you at the right time\n🌐 *Multi-language* — I speak English, Spanish & Portuguese\n\nType *help* for the full command list!",
+    ],
+    laughKeywords: [
+      'haha',
+      'hahaha',
+      'lol',
+      'lmao',
+      'rofl',
+      'jaja',
+      'jajaja',
+      '😂',
+      '🤣',
+    ],
+    laughResponses: [
+      'Haha glad I could make you smile! 😄',
+      "😂 That's the energy! Now, need anything?",
+      "Laughter is the best productivity hack. 😄 What's next?",
+      'Heh, I try! Need a hand with something? 😏',
+      'Ha! Good vibes only today. 😄 What can I do for you?',
+      'Love it! Keep that energy going. 😁',
+    ],
+    complimentKeywords: [
+      'nice',
+      'cool',
+      'awesome',
+      'great',
+      'amazing',
+      'good job',
+      'well done',
+      'love it',
+      'perfect',
+      'incredible',
+      'genial',
+    ],
+    complimentResponses: [
+      "Aw, thanks! You're pretty awesome yourself. 😊",
+      "That means a lot! Let's keep this momentum going. 💪",
+      "You're making *me* blush! 😊 What else can I help with?",
+      "Right back at you! You're crushing it today. 🔥",
+      "Stop, you're too kind! 🥹 Need anything else?",
+      "Flattery will get you everywhere! Haha, what's next? 😄",
+    ],
+    sorryKeywords: ['sorry', 'my bad', 'oops', 'apologize', 'apologies'],
+    sorryResponses: [
+      "No worries at all! We're good. 😊 What can I help with?",
+      "Hey, no need to apologize! I'm here for you. 💪",
+      'All good! Everyone has those moments. What do you need?',
+      "Don't sweat it! Let's move forward. 🚀",
+      'Water under the bridge! What can I help with? 😊',
+      "Totally fine! We've all been there. Ready when you are! 💪",
+    ],
   },
 };
-
-export type Locale = typeof en;

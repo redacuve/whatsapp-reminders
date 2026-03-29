@@ -1,5 +1,5 @@
+import type { Locale } from '../types';
 import { en } from './en';
-import type { Locale } from './en';
 import { es } from './es';
 import { pt } from './pt';
 

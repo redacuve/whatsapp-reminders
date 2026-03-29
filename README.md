@@ -14,9 +14,9 @@
 
 <!-- Project Header -->
 <p align="center">
-  <h1 align="center">📱 WhatsApp Reminders Bot</h1>
+  <h1 align="center">📱 Remi — WhatsApp Productivity Bot</h1>
   <p align="center">
-    A personal productivity assistant that lives inside WhatsApp. Stay motivated, send commands, and manage your day — all by sending a message.
+    Meet <strong>Remi</strong>, your personal productivity sidekick that lives inside WhatsApp. Stay motivated, manage timers and reminders, and get things done — all by sending a message.
   <br>
   <br>
     <a href="https://github.com/redacuve/whatsapp-reminders"><strong>Explore the repo »</strong></a>
@@ -40,9 +40,9 @@
 
 ## About The Project
 
-A WhatsApp bot built for personal productivity. It runs locally on your machine using `whatsapp-web.js` (no Meta Business API needed) and supports multiple languages out of the box.
+**Remi** is a WhatsApp bot built for personal productivity. It runs locally on your machine using `whatsapp-web.js` (no Meta Business API needed) and supports multiple languages out of the box.
 
-The bot responds to commands sent via WhatsApp, sends motivational messages on demand, tracks pomodoro timers, and fires one-off reminders with flexible time expressions — all through simple text commands. Every user has their own language preference stored locally.
+Remi greets you by name, adapts to the time of day, reacts to emojis, and responds to casual conversation — all while handling motivational messages, pomodoro timers, and one-off reminders with flexible time expressions. Every user has their own language preference stored locally.
 
 ## Built With
 
