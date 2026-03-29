@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-import { PomodoroRow } from './types';
+import { PomodoroRow, ReminderRow } from './types';
 
 const DB_PATH = path.resolve(process.cwd(), 'reminders.db');
 
@@ -11,14 +11,12 @@ export function getDb(): Database.Database {
   if (!db) {
     db = new Database(DB_PATH);
     db.pragma('journal_mode = WAL');
-    initTables();
+    initTables(db);
   }
   return db;
 }
 
-function initTables() {
-  const d = getDb();
-
+function initTables(d: Database.Database) {
   d.exec(`
     CREATE TABLE IF NOT EXISTS settings (
       number TEXT PRIMARY KEY,
@@ -34,6 +32,15 @@ function initTables() {
       started_at TEXT DEFAULT (datetime('now')),
       due_at TEXT,
       completed INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      number TEXT NOT NULL,
+      text TEXT NOT NULL,
+      remind_at TEXT NOT NULL,
+      sent INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
 }
@@ -115,4 +122,60 @@ export function updatePomodoro(
 
 export function completePomodoro(id: number): void {
   getDb().prepare('UPDATE pomodoros SET completed = 1 WHERE id = ?').run(id);
+}
+
+// ---- Reminders ----
+export function createReminder(
+  chatId: string,
+  text: string,
+  due: Date,
+): number {
+  const dueStr = due.toISOString().replace('T', ' ').slice(0, 19);
+  const result = getDb()
+    .prepare('INSERT INTO reminders (number, text, remind_at) VALUES (?, ?, ?)')
+    .run(chatId, text, dueStr);
+  return result.lastInsertRowid as number;
+}
+
+export function getPendingReminders(chatId: string): ReminderRow[] {
+  return getDb()
+    .prepare(
+      'SELECT * FROM reminders WHERE number = ? AND sent = 0 ORDER BY remind_at ASC',
+    )
+    .all(chatId) as ReminderRow[];
+}
+
+export function getDueReminders(): ReminderRow[] {
+  return getDb()
+    .prepare(
+      "SELECT * FROM reminders WHERE sent = 0 AND remind_at <= datetime('now')",
+    )
+    .all() as ReminderRow[];
+}
+
+export function deleteReminder(id: number, chatId: string): boolean {
+  const result = getDb()
+    .prepare('DELETE FROM reminders WHERE id = ? AND number = ? AND sent = 0')
+    .run(id, chatId);
+  return (result as { changes: number }).changes > 0;
+}
+
+export function updateReminder(
+  id: number,
+  chatId: string,
+  changes: { text?: string; due?: Date },
+): boolean {
+  const dueStr = changes.due
+    ? changes.due.toISOString().replace('T', ' ').slice(0, 19)
+    : null;
+  const result = getDb()
+    .prepare(
+      'UPDATE reminders SET text = COALESCE(?, text), remind_at = COALESCE(?, remind_at) WHERE id = ? AND number = ? AND sent = 0',
+    )
+    .run(changes.text ?? null, dueStr, id, chatId);
+  return (result as { changes: number }).changes > 0;
+}
+
+export function markReminderSent(id: number): void {
+  getDb().prepare('UPDATE reminders SET sent = 1 WHERE id = ?').run(id);
 }

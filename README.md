@@ -42,7 +42,7 @@
 
 A WhatsApp bot built for personal productivity. It runs locally on your machine using `whatsapp-web.js` (no Meta Business API needed) and supports multiple languages out of the box.
 
-The bot responds to commands sent via WhatsApp, sends motivational messages on demand, and provides detailed sender information — all through simple text commands.
+The bot responds to commands sent via WhatsApp, sends motivational messages on demand, tracks pomodoro timers, and fires one-off reminders with flexible time expressions — all through simple text commands. Every user has their own language preference stored locally.
 
 ## Built With
 
@@ -60,8 +60,9 @@ src/
 ├── main.ts        # Entry point — WhatsApp client, message routing, gating
 ├── config.ts      # Environment variables (phone numbers, paths, language)
 ├── commands.ts    # Command parsing and handlers
-├── scheduler.ts   # Cron jobs — checks due pomodoros every minute
-├── db.ts          # SQLite layer (settings, pomodoros)
+├── scheduler.ts   # Cron jobs — checks due reminders and pomodoros every minute
+├── db.ts          # SQLite layer (settings, reminders, pomodoros)
+├── time.ts        # Time expression parser and formatter
 ├── logger.ts      # Pino logger instance
 ├── types.ts       # Shared TypeScript interfaces
 └── i18n/
@@ -138,8 +139,48 @@ Commands are case-insensitive:
 | `msg` | `motivate` | Send a random motivational message |
 | `status` | — | Show sender info + bot info |
 | `ping` | — | Responds with pong 🏓 |
+| `lang <code>` | — | Change your language (`en`, `es`, `pt`) |
+| `remind` | `recordar`, `lembrar` | Set and manage one-off reminders |
 | `pomodoro` | `pomo` | Start, check, or cancel a pomodoro timer |
-| `lang <code>` | — | Change language (`en`, `es`, `pt`) |
+
+### Reminders
+
+The reminder command accepts flexible time expressions:
+
+| Input | When |
+|---|---|
+| `remind 14:30 call the doctor` | Today at 14:30 (tomorrow if already past) |
+| `remind 30 check email` | In 30 minutes |
+| `remind +30 check email` | In 30 minutes (`+` is optional) |
+| `remind tomorrow 9:00 meeting` | Tomorrow at 09:00 |
+| `remind tomorrow morning buy bread` | Tomorrow at 09:00 |
+| `remind tomorrow afternoon pay bill` | Tomorrow at 14:00 |
+
+#### Subcommands
+
+| Input | Description |
+|---|---|
+| `remind list` | Show pending reminders numbered 1, 2, 3… |
+| `remind delete <n>` | Delete reminder #n from the list |
+| `remind edit <n> 15:00` | Update only the time of reminder #n |
+| `remind edit <n> new text` | Update only the text of reminder #n |
+| `remind edit <n> 15:00 new text` | Update both time and text |
+| `remind help` | Show the subcommand list |
+
+> In Spanish: `recordar lista` / `recordar borrar <n>` / `recordar editar <n>`  
+> In Portuguese: `lembrar lista` / `lembrar apagar <n>` / `lembrar editar <n>`
+
+#### Vague time expressions
+
+Each language defines its own time keywords:
+
+| Language | Morning (09:00) | Afternoon (14:00) | Evening (18:00) | Night (21:00) |
+|---|---|---|---|---|
+| EN | `morning`, `in the morning` | `afternoon`, `in the afternoon` | `evening`, `in the evening` | `night`, `at night`, `tonight` |
+| ES | `en la mañana`, `por la mañana` | `en la tarde`, `por la tarde`, `tarde` | — | `en la noche`, `por la noche`, `noche` |
+| PT | `de manhã`, `pela manhã` | `à tarde`, `de tarde`, `tarde` | — | `à noite`, `de noite`, `noite` |
+
+When the timer fires, the bot sends the reminder message back to the same chat in the user's language.
 
 ### Pomodoro
 
@@ -200,11 +241,11 @@ The `help`, `pomodoro`, and completion messages will instantly switch to the sel
 
 ### Supported languages
 
-| Code | Language | Pomodoro subcommand keywords |
-|---|---|---|
-| `en` | 🇺🇸 English | `help`, `status`, `cancel` |
-| `es` | 🇲🇽 Español | `ayuda`, `estado`, `cancelar` |
-| `pt` | 🇧🇷 Português | `ajuda`, `status`, `cancelar` |
+| Code | Language | Pomodoro keywords | Reminder keywords |
+|---|---|---|---|
+| `en` | 🇺🇸 English | `help`, `status`, `cancel` | `list`, `delete`, `edit`, `help` |
+| `es` | 🇲🇽 Español | `ayuda`, `estado`, `cancelar` | `lista`, `borrar`, `editar`, `ayuda` |
+| `pt` | 🇧🇷 Português | `ajuda`, `status`, `cancelar` | `lista`, `apagar`, `editar`, `ajuda` |
 
 ### Adding a new language
 

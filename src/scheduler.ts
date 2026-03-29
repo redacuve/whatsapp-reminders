@@ -6,10 +6,20 @@ import { getLocale } from './i18n';
 type SendToFn = (chatId: string, msg: string) => Promise<void>;
 
 export function startScheduler(sendTo: SendToFn): void {
-  // Check reminders every minute
+  // Check reminders and pomodoros every minute
   cron.schedule('* * * * *', async () => {
+    await checkReminders(sendTo);
     await checkPomodoros(sendTo);
   });
+}
+
+async function checkReminders(sendTo: SendToFn): Promise<void> {
+  const due = db.getDueReminders();
+  for (const r of due) {
+    db.markReminderSent(r.id);
+    const loc = getLocale(db.getLanguage(r.number) || 'en');
+    await sendTo(r.number, loc.responses.reminderDone(r.text));
+  }
 }
 
 async function checkPomodoros(sendTo: SendToFn): Promise<void> {

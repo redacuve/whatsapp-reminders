@@ -9,6 +9,23 @@ const commands: Record<CommandKey, CommandDef> = {
     name: 'Idioma',
     desc: 'Cambiar tu idioma — lang <código> (en, es, pt)',
   },
+  reminder: {
+    name: 'Recordatorio',
+    desc: 'Crear y gestionar recordatorios puntuales',
+    subcommands: [
+      'recordar 14:30 llamar al doctor — hoy a las 14:30',
+      'recordar +30 revisar correo — en 30 minutos',
+      'recordar mañana 9:00 reunión — mañana a las 09:00',
+      'recordar mañana en la mañana comprar pan — mañana 09:00',
+      'recordar mañana en la tarde pagar recibo — mañana 14:00',
+      'recordar lista — ver recordatorios pendientes',
+      'recordar borrar <n> — eliminar recordatorio #n',
+      'recordar editar <n> 15:00 — cambiar hora del #n',
+      'recordar editar <n> nuevo texto — cambiar texto del #n',
+      'recordar editar <n> 15:00 nuevo texto — cambiar ambos',
+      'recordar ayuda — ver esta lista',
+    ],
+  },
   pomodoro: {
     name: 'Pomodoro',
     desc: 'Temporizador pomodoro',
@@ -57,6 +74,20 @@ const motivationalMessages = [
 export const es = {
   code: 'es',
   name: 'Español',
+  tomorrowKeywords: ['mañana', 'manana'],
+  dayLabels: { today: 'hoy', tomorrow: 'mañana' },
+  vagueHours: {
+    'en la mañana': 9,
+    'por la mañana': 9,
+    'en la manana': 9,
+    'por la manana': 9,
+    'en la tarde': 14,
+    'por la tarde': 14,
+    tarde: 14,
+    'en la noche': 21,
+    'por la noche': 21,
+    noche: 21,
+  } as Record<string, number>,
   commands,
   motivationalMessages,
   responses: {
@@ -112,6 +143,22 @@ export const es = {
     pomodoroCancelCmd: 'cancelar',
     pomodoroDone: (task: string) =>
       `✅ ¡Pomodoro terminado! Tiempo cumplido para: *${task}*. ¡Tómate un descanso! 🎉`,
+    reminderAdded: (text: string, when: string) =>
+      `⏰ ¡Recordatorio guardado! *${text}* — ${when}`,
+    reminderEdited: (text: string, when: string) =>
+      `✅ Recordatorio actualizado: *${text}* — ${when}`,
+    reminderDeleted: (text: string) => `🗑️ Eliminado: *${text}*`,
+    reminderDone: (text: string) => `🔔 *Recordatorio:* ${text}`,
+    reminderList: '⏰ *Tus recordatorios pendientes:*',
+    reminderEmpty: '📭 No tienes recordatorios pendientes.',
+    reminderNotFound:
+      '❌ Recordatorio no encontrado. Usa *recordar lista* para ver los números.',
+    reminderInvalidTime:
+      '❌ Formato inválido. Prueba: `recordar 14:30 texto`, `recordar +30 texto`, `recordar mañana 9:00 texto`',
+    reminderListCmd: 'lista',
+    reminderDeleteCmd: 'borrar',
+    reminderEditCmd: 'editar',
+    reminderHelpCmd: 'ayuda',
   },
 };
 

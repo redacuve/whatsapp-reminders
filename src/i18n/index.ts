@@ -7,6 +7,8 @@ export type { Locale };
 
 const locales: Record<string, Locale> = { en, es, pt };
 
+export const availableLocales = Object.keys(locales);
+
 export function getLocale(lang: string): Locale {
   return locales[lang] || en;
 }

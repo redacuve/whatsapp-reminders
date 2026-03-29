@@ -22,7 +22,8 @@ export type CommandKey =
   | 'status'
   | 'ping'
   | 'pomodoro'
-  | 'lang';
+  | 'lang'
+  | 'reminder';
 
 export interface CommandDef {
   name: string;
@@ -38,4 +39,13 @@ export interface PomodoroRow {
   started_at: string;
   due_at: string;
   completed: number;
+}
+
+export interface ReminderRow {
+  id: number;
+  number: string;
+  text: string;
+  remind_at: string;
+  sent: number;
+  created_at: string;
 }

@@ -9,6 +9,23 @@ const commands: Record<CommandKey, CommandDef> = {
     name: 'Idioma',
     desc: 'Alterar seu idioma — lang <código> (en, es, pt)',
   },
+  reminder: {
+    name: 'Lembrete',
+    desc: 'Criar e gerenciar lembretes pontuais',
+    subcommands: [
+      'lembrar 14:30 ligar para o médico — hoje às 14:30',
+      'lembrar +30 verificar e-mail — em 30 minutos',
+      'lembrar amanhã 9:00 reunião — amanhã às 09:00',
+      'lembrar amanhã de manhã comprar pão — amanhã 09:00',
+      'lembrar amanhã de tarde pagar conta — amanhã 14:00',
+      'lembrar lista — ver lembretes pendentes',
+      'lembrar apagar <n> — deletar lembrete #n',
+      'lembrar editar <n> 15:00 — alterar hora do #n',
+      'lembrar editar <n> novo texto — alterar texto do #n',
+      'lembrar editar <n> 15:00 novo texto — alterar ambos',
+      'lembrar ajuda — ver esta lista',
+    ],
+  },
   pomodoro: {
     name: 'Pomodoro',
     desc: 'Timer pomodoro',
@@ -57,6 +74,22 @@ const motivationalMessages = [
 export const pt = {
   code: 'pt',
   name: 'Português',
+  tomorrowKeywords: ['amanhã', 'amanha'],
+  dayLabels: { today: 'hoje', tomorrow: 'amanhã' },
+  vagueHours: {
+    'de manhã': 9,
+    'de manha': 9,
+    'pela manhã': 9,
+    'pela manha': 9,
+    'à tarde': 14,
+    'a tarde': 14,
+    'de tarde': 14,
+    tarde: 14,
+    'à noite': 21,
+    'a noite': 21,
+    'de noite': 21,
+    noite: 21,
+  } as Record<string, number>,
   commands,
   motivationalMessages,
   responses: {
@@ -112,5 +145,21 @@ export const pt = {
     pomodoroCancelCmd: 'cancelar',
     pomodoroDone: (task: string) =>
       `✅ Pomodoro concluído! Tempo esgotado para: *${task}*. Tire uma pausa! 🎉`,
+    reminderAdded: (text: string, when: string) =>
+      `⏰ Lembrete definido! *${text}* — ${when}`,
+    reminderEdited: (text: string, when: string) =>
+      `✅ Lembrete atualizado: *${text}* — ${when}`,
+    reminderDeleted: (text: string) => `🗑️ Deletado: *${text}*`,
+    reminderDone: (text: string) => `🔔 *Lembrete:* ${text}`,
+    reminderList: '⏰ *Seus lembretes pendentes:*',
+    reminderEmpty: '📭 Nenhum lembrete pendente.',
+    reminderNotFound:
+      '❌ Lembrete não encontrado. Use *lembrar lista* para ver os números.',
+    reminderInvalidTime:
+      '❌ Formato inválido. Tente: `lembrar 14:30 texto`, `lembrar +30 texto`, `lembrar amanhã 9:00 texto`',
+    reminderListCmd: 'lista',
+    reminderDeleteCmd: 'apagar',
+    reminderEditCmd: 'editar',
+    reminderHelpCmd: 'ajuda',
   },
 };

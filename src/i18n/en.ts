@@ -9,6 +9,23 @@ const commands: Record<CommandKey, CommandDef> = {
     name: 'Language',
     desc: 'Change your language — lang <code> (en, es, pt)',
   },
+  reminder: {
+    name: 'Reminder',
+    desc: 'Set and manage one-off reminders',
+    subcommands: [
+      'remind 14:30 call the doctor — today at 14:30',
+      'remind +30 check email — in 30 minutes',
+      'remind tomorrow 9:00 meeting — tomorrow at 09:00',
+      'remind tomorrow morning buy bread — tomorrow at 09:00',
+      'remind tomorrow afternoon pay bill — tomorrow at 14:00',
+      'remind list — show pending reminders',
+      'remind delete <n> — delete reminder #n',
+      'remind edit <n> 15:00 — update time of #n',
+      'remind edit <n> new text — update text of #n',
+      'remind edit <n> 15:00 new text — update both',
+      'remind help — show this list',
+    ],
+  },
   pomodoro: {
     name: 'Pomodoro',
     desc: 'Pomodoro timer',
@@ -57,6 +74,19 @@ const motivationalMessages = [
 export const en = {
   code: 'en',
   name: 'English',
+  tomorrowKeywords: ['tomorrow'],
+  dayLabels: { today: 'today', tomorrow: 'tomorrow' },
+  vagueHours: {
+    morning: 9,
+    'in the morning': 9,
+    afternoon: 14,
+    'in the afternoon': 14,
+    evening: 18,
+    'in the evening': 18,
+    night: 21,
+    'at night': 21,
+    tonight: 21,
+  } as Record<string, number>,
   commands,
   motivationalMessages,
   responses: {
@@ -112,6 +142,22 @@ export const en = {
     pomodoroCancelCmd: 'cancel',
     pomodoroDone: (task: string) =>
       `✅ Pomodoro finished! Time's up for: *${task}*. Take a break! 🎉`,
+    reminderAdded: (text: string, when: string) =>
+      `⏰ Reminder set! *${text}* — ${when}`,
+    reminderEdited: (text: string, when: string) =>
+      `✅ Reminder updated: *${text}* — ${when}`,
+    reminderDeleted: (text: string) => `🗑️ Deleted: *${text}*`,
+    reminderDone: (text: string) => `🔔 *Reminder:* ${text}`,
+    reminderList: '⏰ *Your pending reminders:*',
+    reminderEmpty: '📭 No pending reminders.',
+    reminderNotFound:
+      '❌ Reminder not found. Use *remind list* to see the numbers.',
+    reminderInvalidTime:
+      '❌ Invalid format. Try: `remind 14:30 text`, `remind +30 text`, `remind tomorrow 9:00 text`',
+    reminderListCmd: 'list',
+    reminderDeleteCmd: 'delete',
+    reminderEditCmd: 'edit',
+    reminderHelpCmd: 'help',
   },
 };
 
