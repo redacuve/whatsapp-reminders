@@ -1,18 +1,101 @@
-import { CommandDef, CommandKey, EMOJI_KEYWORDS, Locale } from '../types';
+import { CommandEntry, EMOJI_KEYWORDS, Locale } from '../types';
+import { buildCommandList, buildDisplayCommands } from './builders';
 
-const commands: Record<CommandKey, CommandDef> = {
-  help: { name: 'Ayuda', desc: 'Mostrar comandos disponibles' },
-  msg: { name: 'Motivar', desc: 'Enviar un mensaje motivacional ahora' },
-  status: { name: 'Estado', desc: 'Mostrar estado del bot' },
-  ping: { name: 'Ping', desc: 'Responde con pong' },
-  lang: {
+const defs: Record<string, CommandEntry> = {
+  hello: {
+    triggers: ['hola', 'ola', 'hey', 'buenas', 'buenos días', 'buenos dias'],
+  },
+  bye: {
+    triggers: ['chao', 'adiós', 'adios', 'hasta luego', 'nos vemos'],
+  },
+  remi: {
+    triggers: [
+      'remi',
+      'quién eres',
+      'quien eres',
+      'quién es remi',
+      'quien es remi',
+    ],
+  },
+  ping: {
+    triggers: ['ping'],
+    name: 'Ping',
+    desc: 'Verificar que estoy vivo',
+  },
+  status: {
+    triggers: ['estado', 'status'],
+    name: 'Estado',
+    desc: 'Ver tu info y la mía',
+  },
+  help: {
+    triggers: ['ayuda', 'help', '?'],
+    name: 'Ayuda',
+    desc: 'Ver todos mis comandos de productividad',
+  },
+  message: {
+    triggers: ['motivar', 'motivación', 'motivacion', 'msg'],
+    name: 'Motivar',
+    desc: 'Recibir un mensaje motivacional',
+    trigger: 'msg',
+    emoji: '💪',
+    featureName: 'Mensajes motivacionales',
+    featureDesc: 'Inspiración instantánea',
+  },
+  language: {
+    triggers: ['idioma', 'lengua', 'lang'],
+    subcommandTriggers: {
+      set: ['cambiar', 'establecer'],
+      help: ['ayuda', 'info', 'instrucciones'],
+    },
     name: 'Idioma',
-    desc: 'Cambiar tu idioma — lang <código> (en, es, pt)',
+    desc: 'Cambiar idioma (en/es/pt)',
+    trigger: 'lang',
+    emoji: '🌐',
+    featureName: 'Multi-idioma',
+    featureDesc: 'Hablo español, inglés y portugués',
+  },
+  pomodoro: {
+    triggers: ['pomodoro', 'pomo', 'temporizador'],
+    subcommandTriggers: {
+      start: ['iniciar', 'empezar', 'comenzar'],
+      status: ['estado', 'ver', 'actual'],
+      cancel: ['cancelar', 'parar', 'detener'],
+      help: ['ayuda', 'info', 'instrucciones'],
+    },
+    name: 'Pomodoro',
+    desc: 'Sesiones de enfoque con temporizador',
+    emoji: '⏱️',
+    featureName: 'Temporizadores pomodoro',
+    featureDesc: 'Mantén el enfoque con sesiones',
+    helpLines: [
+      'pomodoro [mins] [tarea] — iniciar (por defecto: 25 min, "Sesión de enfoque")',
+      'pomodoro estado — ver temporizador activo',
+      'pomodoro cancelar — cancelar temporizador activo',
+      'pomodoro ayuda — ver esta lista',
+    ],
   },
   reminder: {
+    triggers: [
+      'recordar',
+      'recordatorio',
+      'recuérdame',
+      'recuerdame',
+      'recordatorio',
+      'recordatorios',
+    ],
+    subcommandTriggers: {
+      list: ['lista'],
+      help: ['ayuda'],
+      delete: ['borrar', 'eliminar'],
+      edit: ['editar'],
+    },
     name: 'Recordatorio',
-    desc: 'Crear y gestionar recordatorios puntuales',
-    subcommands: [
+    desc: 'Crear y gestionar recordatorios',
+    trigger: 'recordar',
+    emoji: '⏰',
+    featureName: 'Recordatorios',
+    featureDesc: 'Te aviso en el momento justo',
+    helpLines: [
       'recordar 14:30 llamar al doctor — hoy a las 14:30',
       'recordar +30 revisar correo — en 30 minutos',
       'recordar mañana 9:00 reunión — mañana a las 09:00',
@@ -26,17 +109,58 @@ const commands: Record<CommandKey, CommandDef> = {
       'recordar ayuda — ver esta lista',
     ],
   },
-  pomodoro: {
-    name: 'Pomodoro',
-    desc: 'Temporizador pomodoro',
-    subcommands: [
-      'pomodoro [mins] [tarea] — iniciar (por defecto: 25 min, "Sesión de enfoque")',
-      'pomodoro estado — ver temporizador activo',
-      'pomodoro cancelar — cancelar temporizador activo',
-      'pomodoro ayuda — ver esta lista',
+  note: {
+    triggers: ['nota'],
+    subcommandTriggers: {
+      list: ['lista'],
+      help: ['ayuda'],
+      done: ['hecha', 'hecho', 'hechas', 'hechos'],
+      undone: ['pendiente', 'pendientes'],
+      delete: ['borrar', 'eliminar'],
+    },
+    name: 'Nota',
+    desc: 'Notas tipo to-do: márcalas como hechas, organiza tareas',
+    emoji: '📝',
+    featureName: 'Notas rápidas',
+    featureDesc: 'Tareas que puedes marcar como hechas',
+    helpLines: [
+      'nota <texto> — añadir una nueva nota',
+      'nota lista — ver todas las notas (pendientes primero, luego hechas)',
+      'nota hecha <n> — marcar la nota #n como hecha',
+      'nota pendiente <n> — marcar la nota #n como pendiente',
+      'nota borrar <n> — borrar la nota #n',
+      'nota ayuda — ver esta lista',
+    ],
+  },
+  journal: {
+    triggers: ['diario', 'journal'],
+    subcommandTriggers: {
+      list: ['lista'],
+      help: ['ayuda'],
+      random: ['aleatorio'],
+      date: ['fecha', 'dia', 'día'],
+      stats: ['estadisticas', 'estadísticas', 'stats'],
+      delete: ['borrar', 'eliminar'],
+    },
+    name: 'Diario',
+    desc: 'Reflexiona, consulta por fecha, ve estadísticas',
+    emoji: '📓',
+    featureName: 'Diario personal',
+    featureDesc: 'Reflexiona y explora tus pensamientos',
+    helpLines: [
+      'diario <texto> — escribir una nueva entrada',
+      'diario lista — ver las últimas 5 entradas',
+      'diario aleatorio — mostrar una entrada aleatoria',
+      'diario fecha <AAAA-MM-DD> — mostrar entrada de una fecha',
+      'diario estadisticas — ver tus estadísticas del diario',
+      'diario borrar <n> — borrar la entrada #n',
+      'diario ayuda — ver esta lista',
     ],
   },
 };
+
+const commandList = buildCommandList(defs);
+const commands = buildDisplayCommands(defs);
 
 const motivationalMessages = [
   'Buenos días. Hoy es un nuevo día para construir algo grande. ¿Cuál es tu meta?',
@@ -89,10 +213,15 @@ export const es: Locale = {
     noche: 21,
   },
   commands,
+  commandList,
   motivationalMessages,
   responses: {
+    journalKeywords: ['diario', 'journal'],
+    noteKeywords: ['nota', 'note'],
+    remiKeywords: ['remi'],
+    aboutKeywords: ['acerca', 'acerca de remi', 'about', 'about remi'],
     motivatePrefix: '¡Aquí tienes un mensaje motivacional! 💪',
-    status: '¡El bot está funcionando sin problemas! ✅',
+    status: '¡Remi está funcionando sin problemas! ✅',
     ping: '¡Pong! 🏓',
     unknown:
       'Hmm, no estoy seguro de qué quieres decir 🤔 Escribe *ayuda* y te muestro todo lo que puedo hacer.',
@@ -225,8 +354,8 @@ export const es: Locale = {
     ],
     helpHint:
       '\n\n_También puedo platicar contigo — escribe *remi* para conocerme mejor. 💬_',
-    remiAbout: (name: string) =>
-      `¡Hey, ${name}! 🤖 Soy *Remi*, y esto es todo lo que entiendo:\n\n📋 *Comandos*\n  › *ayuda* — ver todos mis comandos de productividad\n  › *motivar* — recibir un mensaje motivacional\n  › *pomodoro* — sesiones de enfoque con temporizador\n  › *recordar* — crear y gestionar recordatorios\n  › *lang* — cambiar idioma (en/es/pt)\n  › *estado* — ver tu info y la mía\n  › *ping* — verificar que estoy vivo\n\n💬 *También entiendo conversación casual:*\n  › Saludos — _"hola", "buenas", "buenos días"_\n  › Despedidas — _"adiós", "nos vemos", "bye"_\n  › Agradecimiento — _"gracias", "mil gracias"_\n  › ¿Cómo estás? — _"cómo estás", "qué tal"_\n  › Cumplidos — _"genial", "increíble", "crack"_\n  › Disculpas — _"perdón", "disculpa"_\n  › Risas — _"jaja", "lol"_\n  › Emojis — _👍 🔥 💪 🙌 👏 🎉_\n  › ¿Quién eres? — _"quién eres", "quién es remi"_\n  › ¿Qué puedes hacer? — _"qué puedes hacer"_\n\nMe adapto a la hora del día y te llamo por tu nombre. ¡Escríbeme con confianza! 😊`,
+    remiAbout: (name: string, commandsList: string) =>
+      `¡Hey, ${name}! ✨ Soy *Remi*, y esto es todo lo que entiendo:\n\n📋 *Comandos*\n${commandsList}\n\n💬 *También entiendo conversación casual:*\n  › Saludos — _"hola", "buenas", "buenos días"_\n  › Despedidas — _"adiós", "nos vemos", "bye"_\n  › Agradecimiento — _"gracias", "mil gracias"_\n  › ¿Cómo estás? — _"cómo estás", "qué tal"_\n  › Cumplidos — _"genial", "increíble", "crack"_\n  › Disculpas — _"perdón", "disculpa"_\n  › Risas — _"jaja", "lol"_\n  › Emojis — _👍 🔥 💪 🙌 👏 🎉_\n  › ¿Quién eres? — _"quién eres", "quién es remi"_\n  › ¿Qué puedes hacer? — _"qué puedes hacer"_\n\nMe adapto a la hora del día y te llamo por tu nombre. ¡Escríbeme con confianza! 😊`,
     farewells: [
       '¡Hasta luego! 👋 Ve y rómpela.',
       '¡Nos vemos! Aquí estaré cuando me necesites. 💪',
@@ -267,10 +396,10 @@ export const es: Locale = {
     ],
     howAreYou: [
       '¡Al 100! ⚡ Más importante, ¿tú cómo vas?',
-      '¡Funcionando a toda máquina! ¿En qué te ayudo? 🤖',
+      '¡Funcionando a toda máquina! ¿En qué te ayudo? ⚡',
       '¡De maravilla! Listo para lo que venga. ¿Qué tienes hoy?',
       '¡Aquí, cargado y listo! ⚡ ¿Qué necesitas?',
-      '¡Viviendo mi mejor vida de bot! 😄 ¿Y tú qué tal?',
+      '¡Viviendo mi mejor vida de Remi! 😄 ¿Y tú qué tal?',
       '¡Mejor que nunca! ¿Tienes grandes planes hoy? 🚀',
       '¡En la cima del mundo! Bueno, en la cima de tu chat al menos. 😏 ¿Qué onda?',
     ],
@@ -294,7 +423,7 @@ export const es: Locale = {
       'quien es remi',
     ],
     whoAreYou: [
-      '¡Soy *Remi*! 🤖 Tu compañero de productividad personal aquí en WhatsApp. Puedo motivarte, manejar temporizadores pomodoro y configurar recordatorios para que nunca se te pase nada. Escribe *ayuda* para ver todo.',
+      '¡Soy *Remi*! ✨ Tu compañero de productividad personal aquí en WhatsApp. Puedo motivarte, manejar temporizadores pomodoro y configurar recordatorios para que nunca se te pase nada. Escribe *ayuda* para ver todo.',
       '¡Hey! Soy *Remi* — piénsame como tu socio de productividad de bolsillo. 💪 Mensajes motivacionales, sesiones de enfoque pomodoro y recordatorios inteligentes. ¡Eso es lo mío!',
       '¡Me llamo *Remi*! Vivo en tu WhatsApp para ayudarte a mantenerte enfocado y organizado. Temporizadores, recordatorios, motivación — tengo todo el kit. Escribe *ayuda* para explorar.',
     ],
@@ -309,9 +438,8 @@ export const es: Locale = {
       'cuales son tus comandos',
       'funciones',
     ],
-    whatCanYouDo: [
-      '¡Esto es lo que puedo hacer por ti! 🚀\n\n💪 *Mensajes motivacionales* — inspiración instantánea\n⏱️ *Temporizadores pomodoro* — mantén el enfoque con sesiones\n⏰ *Recordatorios* — te aviso en el momento justo\n🌐 *Multi-idioma* — hablo español, inglés y portugués\n\nEscribe *ayuda* para la lista completa de comandos.',
-    ],
+    whatCanYouDo: (featuresSection: string) =>
+      `¡Esto es lo que puedo hacer por ti! 🚀\n\n${featuresSection}\n\nEscribe *ayuda* para la lista completa de comandos.`,
     laughKeywords: ['jaja', 'jajaja', 'jajajaja', 'haha', 'lol', '😂', '🤣'],
     laughResponses: [
       '¡Jaja me alegra sacarte una sonrisa! 😄',
@@ -362,5 +490,53 @@ export const es: Locale = {
       '¡Agua bajo el puente! ¿En qué te puedo ayudar? 😊',
       '¡Totalmente bien! A todos nos pasa. ¡Listo cuando quieras! 💪',
     ],
+    noteAdded: (text: string) => `📝 ¡Anotado! *${text}*`,
+    noteDeleted: (text: string) => `🗑️ Eliminado: *${text}*`,
+    noteList: '📝 *Tus notas:*',
+    noteEmpty: '📭 No tienes notas guardadas todavía.',
+    noteNotFound:
+      '❌ Nota no encontrada. Usa *nota lista* para ver los números.',
+    noteListCmd: 'lista',
+    noteDeleteCmd: [
+      'borrar',
+      'eliminar',
+      'borrada',
+      'borrado',
+      'borradas',
+      'borrados',
+    ],
+    noteHelpCmd: 'ayuda',
+    notePendingList: '⏳ Pendientes:',
+    noteDoneList: '✅ Hechas:',
+    noteDoneCmd: ['hecha', 'hecho', 'hechas', 'hechos'],
+    noteUndoneCmd: ['pendiente', 'pendientes'],
+    noteMarkedDone: (text: string) => `✅ Marcada como hecha: *${text}*`,
+    noteMarkedUndone: (text: string) => `⏳ Marcada como pendiente: *${text}*`,
+    noteAlreadyDone: (text: string) => `Ya estaba hecha: *${text}*`,
+    noteAlreadyPending: (text: string) => `Ya estaba pendiente: *${text}*`,
+    journalAdded: (preview: string) =>
+      `📓 ¡Guardado! _${preview}_ — escrito y asegurado. 🔒`,
+    journalDeleted: '🗑️ Entrada del diario eliminada.',
+    journalList: '📓 *Tus entradas recientes del diario:*',
+    journalEmpty: '📭 Aún no tienes entradas. ¡Escribe la primera!',
+    journalNotFound:
+      '❌ Entrada no encontrada. Usa *diario lista* para ver los números.',
+    journalListCmd: 'lista',
+    journalDeleteCmd: [
+      'borrar',
+      'eliminar',
+      'borrada',
+      'borrado',
+      'borradas',
+      'borrados',
+    ],
+    journalHelpCmd: 'ayuda',
+    journalRandomCmd: 'aleatorio',
+    journalRandom: '📓 Entrada aleatoria:',
+    journalDateCmd: ['fecha', 'dia', 'día', 'data'],
+    journalStatsCmd: ['estadisticas', 'estadística', 'estadísticas', 'stats'],
+    journalStats: (stats: any) =>
+      `📊 *Estadísticas del diario:*\nEntradas: ${stats.totalEntries}\nPalabras: ${stats.totalWords}\nDías escritos: ${stats.daysWritten}\nRacha actual: ${stats.currentStreak}\nRacha más larga: ${stats.longestStreak}`,
+    languageHelp: `Para cambiar el idioma, escribe: \`lang set <código_idioma>\` Idiomas disponibles: Inglés (en), Español (es), Portugués (pt)`,
   },
 };

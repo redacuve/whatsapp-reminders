@@ -1,8 +1,16 @@
 import qrcode from 'qrcode-terminal';
 import { Chat, Client, Contact, LocalAuth } from 'whatsapp-web.js';
 
-import { handleCommand } from './commands';
-import { MY_GROUP, MY_NUMBER, MY_NUMBER_LID, SESSION_PATH } from './config';
+import {
+  LANG,
+  MY_GROUP,
+  MY_NUMBER,
+  MY_NUMBER_LID,
+  SESSION_PATH,
+} from './config';
+import * as db from './db';
+import { handleCommand } from './handleCommand';
+import { getLocale } from './i18n';
 import { Logger } from './logger';
 import { startScheduler } from './scheduler';
 
@@ -78,6 +86,8 @@ client.on('message', async (message) => {
   if (isGated) return;
 
   Logger.info({ body: message.body }, '⚡ Processing command');
+  const language = db.getLanguage(message.from) || LANG;
+  const locale = getLocale(language);
   const contact = await message.getContact();
   await handleCommand(
     message.body,
@@ -85,6 +95,8 @@ client.on('message', async (message) => {
       await message.reply(response);
     },
     {
+      language,
+      locale,
       from: message.from,
       chatId: chat.id._serialized,
       isGroup: chat.isGroup,
