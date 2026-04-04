@@ -1,6 +1,6 @@
 <!-- Badges -->
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.1-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.2.2-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
     <img alt="License: ISC" src="https://img.shields.io/badge/License-ISC-yellow.svg" />
   </a>
@@ -30,6 +30,7 @@
 * [About the Project](#about-the-project)
 * [Built With](#built-with)
 * [Architecture](#architecture)
+* [Documentation](#documentation)
 * [Getting Started](#getting-started)
 * [Access Control (Gating)](#access-control-gating)
 * [Commands](#commands)
@@ -42,7 +43,7 @@
 
 **Remi** is a WhatsApp bot built for personal productivity. It runs locally on your machine using `whatsapp-web.js` (no Meta Business API needed) and supports multiple languages out of the box.
 
-Remi greets you by name, adapts to the time of day, reacts to emojis, and responds to casual conversation — all while handling motivational messages, pomodoro timers, and one-off reminders with flexible time expressions. Every user has their own language preference stored locally.
+Remi greets you by name, adapts to the time of day, reacts to emojis, and responds to casual conversation — all while handling motivational messages, pomodoro timers, and both one-off and recurring reminders with flexible time expressions. Every user has their own language preference stored locally.
 
 ## Built With
 
@@ -57,20 +58,67 @@ Remi greets you by name, adapts to the time of day, reacts to emojis, and respon
 
 ```
 src/
-├── main.ts        # Entry point — WhatsApp client, message routing, gating
-├── config.ts      # Environment variables (phone numbers, paths, language)
-├── commands.ts    # Command parsing and handlers
-├── scheduler.ts   # Cron jobs — checks due reminders and pomodoros every minute
-├── db.ts          # SQLite layer (settings, reminders, pomodoros, notes, journal)
-├── time.ts        # Time expression parser and formatter
-├── logger.ts      # Pino logger instance
-├── types.ts       # Shared TypeScript interfaces
-└── i18n/
-    ├── index.ts   # i18n manager (getLocale)
-    ├── en.ts      # 🇺🇸 English locale
-    ├── es.ts      # 🇲🇽 Spanish locale
-    └── pt.ts      # 🇧🇷 Portuguese locale
+├── main.ts              # Entry point — WhatsApp client, message routing, gating
+├── config.ts            # Environment variables (phone numbers, paths, language)
+├── handleCommand.ts     # Orchestrator: parse → error-check → execute
+├── scheduler.ts         # Cron jobs — checks due reminders and pomodoros every minute
+├── db.ts                # SQLite layer (settings, reminders, pomodoros, notes, journal)
+├── time.ts              # Time expression parser and formatter
+├── helper.ts            # Pure utilities: pickRandom, getTimeOfDay
+├── logger.ts            # Pino logger instance
+├── types.ts             # Shared TypeScript interfaces
+├── i18n/
+│   ├── index.ts         # getLocale(), buildCommandsList(), buildFeaturesList()
+│   ├── builders.ts      # buildCommandList(), buildDisplayCommands() from CommandEntry
+│   ├── en.ts            # 🇺🇸 English locale
+│   ├── es.ts            # 🇲🇽 Spanish locale
+│   └── pt.ts            # 🇧🇷 Portuguese locale
+├── parser/
+│   ├── index.ts         # Main parse function: alias matching + NLP fallback
+│   └── command/
+│       ├── index.ts     # Parser registry for all commands
+│       ├── simple.ts    # help, status, ping, message, hello, bye, remi
+│       ├── pomodoro.ts  # start / status / cancel / help
+│       ├── language.ts  # set / help
+│       ├── reminder.ts  # list / help / delete / edit / create / recurring
+│       ├── note.ts      # list / help / done / undone / delete / create
+│       └── journal.ts   # list / help / random / date / stats / delete / create
+└── command/
+    ├── index.ts         # executeCommand() — routes ParseResult to handlers
+    ├── simple.ts        # help, status, ping, message, hello, bye, remi handlers
+    ├── nlp.ts           # nlpHandler — 8 conversational patterns
+    ├── pomodoro.ts      # Pomodoro handlers
+    ├── language.ts      # Language handlers
+    ├── reminder.ts      # Reminder handlers
+    ├── note.ts          # Note handlers
+    └── journal.ts       # Journal handlers
 ```
+
+The pipeline for every incoming message is:
+
+```
+main.ts → handleCommand.ts → parser/index.ts → command/index.ts → command/<name>.ts
+```
+
+## Documentation
+
+Full developer documentation lives in two folders:
+
+### `/context/` — for AI agents and quick orientation
+
+| File | Description |
+|---|---|
+| [context/product.md](context/product.md) | What Remi is, who it's for, constraints |
+| [context/rules.md](context/rules.md) | Coding rules and invariants every contributor must follow |
+| [context/glossary.md](context/glossary.md) | Canonical definitions for every term, concept, and interface |
+
+### `/docs/` — deep technical reference
+
+| File | Description |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | Full file map, message pipeline, per-command parser and handler reference, locale system, DB schema |
+| [docs/api.md](docs/api.md) | Every public function, module, and interface with signatures |
+| [docs/decisions.md](docs/decisions.md) | Architectural Decision Records (ADRs) explaining the key design choices |
 
 ## Getting Started
 
@@ -140,14 +188,14 @@ Commands are case-insensitive:
 | `status` | — | Show sender info + bot info |
 | `ping` | — | Responds with pong 🏓 |
 | `lang <code>` | — | Change your language (`en`, `es`, `pt`) |
-| `remind` | `recordar`, `lembrar` | Set and manage one-off reminders |
+| `remind` | `recordar`, `lembrar` | Set and manage one-off and recurring reminders |
 | `pomodoro` | `pomo` | Start, check, or cancel a pomodoro timer |
 | `note` | `nota` | Save and manage quick notes |
 | `journal` | `diario`, `diário` | Write and browse personal journal entries |
 
 ### Reminders
 
-The reminder command accepts flexible time expressions:
+The reminder command accepts flexible time expressions and recurring schedules:
 
 | Input | When |
 |---|---|
@@ -157,6 +205,11 @@ The reminder command accepts flexible time expressions:
 | `remind tomorrow 9:00 meeting` | Tomorrow at 09:00 |
 | `remind tomorrow morning buy bread` | Tomorrow at 09:00 |
 | `remind tomorrow afternoon pay bill` | Tomorrow at 14:00 |
+| `remind interval 30 drink water` | Every 30 minutes |
+| `remind weekly monday 08:00 go to gym` | Every Monday at 08:00 |
+| `remind monthly 1 09:00 pay rent` | Every 1st day of the month at 09:00 |
+| `remind weekdays 09:00 standup` | Monday to Friday at 09:00 |
+| `remind weekends 10:00 read` | Saturday and Sunday at 10:00 |
 
 #### Subcommands
 
@@ -167,10 +220,17 @@ The reminder command accepts flexible time expressions:
 | `remind edit <n> 15:00` | Update only the time of reminder #n |
 | `remind edit <n> new text` | Update only the text of reminder #n |
 | `remind edit <n> 15:00 new text` | Update both time and text |
+| `remind interval <mins> <text>` | Create a recurring reminder every N minutes |
+| `remind weekly <day> <time> <text>` | Create a recurring reminder for a weekday + time |
+| `remind monthly <day> <time> <text>` | Create a recurring reminder for a day of month + time |
+| `remind weekdays <time> <text>` | Create a recurring reminder for Monday to Friday |
+| `remind weekends <time> <text>` | Create a recurring reminder for Saturday and Sunday |
 | `remind help` | Show the subcommand list |
 
 > In Spanish: `recordar lista` / `recordar borrar <n>` / `recordar editar <n>`  
-> In Portuguese: `lembrar lista` / `lembrar apagar <n>` / `lembrar editar <n>`
+> Also recurring in Spanish: `recordar intervalo`, `recordar semanal`, `recordar mensual`, `recordar laborables`, `recordar fines-de-semana`  
+> In Portuguese: `lembrar lista` / `lembrar apagar <n>` / `lembrar editar <n>`  
+> Also recurring in Portuguese: `lembrar intervalo`, `lembrar semanal`, `lembrar mensal`, `lembrar dias-uteis`, `lembrar fim-de-semana`
 
 #### Vague time expressions
 
@@ -182,7 +242,7 @@ Each language defines its own time keywords:
 | ES | `en la mañana`, `por la mañana` | `en la tarde`, `por la tarde`, `tarde` | — | `en la noche`, `por la noche`, `noche` |
 | PT | `de manhã`, `pela manhã` | `à tarde`, `de tarde`, `tarde` | — | `à noite`, `de noite`, `noite` |
 
-When the timer fires, the bot sends the reminder message back to the same chat in the user's language.
+When a reminder fires, the bot sends the reminder message back to the same chat in the user's language. Recurring reminders are automatically moved to their next occurrence.
 
 ### Pomodoro
 
