@@ -1,7 +1,50 @@
+// Get a journal entry by date (YYYY-MM-DD)
+export function getJournalEntryByDate(chatId: string, date: string): JournalRow | null {
+  const row = getDb()
+    .prepare('SELECT * FROM journal_entries WHERE number = ? AND date(created_at) = ? LIMIT 1')
+    .get(chatId, date) as JournalRow | undefined;
+  return row ?? null;
+}
+
+// Get a random journal entry
+export function getRandomJournalEntry(chatId: string): JournalRow | null {
+  const row = getDb()
+    .prepare('SELECT * FROM journal_entries WHERE number = ? ORDER BY RANDOM() LIMIT 1')
+    .get(chatId) as JournalRow | undefined;
+  return row ?? null;
+}
+
+// Get journal stats
+export function getJournalStats(chatId: string): import('./types').JournalStats {
+  const dbi = getDb();
+  const totalEntries = (dbi.prepare('SELECT COUNT(*) as n FROM journal_entries WHERE number = ?').get(chatId) as { n: number }).n;
+  const totalWords = (dbi.prepare('SELECT SUM(LENGTH(text) - LENGTH(REPLACE(text, " ", "")) + 1) as w FROM journal_entries WHERE number = ?').get(chatId) as { w: number }).w || 0;
+  const daysWritten = (dbi.prepare('SELECT COUNT(DISTINCT date(created_at)) as d FROM journal_entries WHERE number = ?').get(chatId) as { d: number }).d;
+  // Streaks
+  const dates = dbi.prepare('SELECT DISTINCT date(created_at) as d FROM journal_entries WHERE number = ? ORDER BY d ASC').all(chatId).map((r: any) => r.d);
+  let currentStreak = 0, longestStreak = 0, prev: string | null = null, streak = 0;
+  for (const d of dates) {
+    if (!prev || (new Date(d).getTime() - new Date(prev).getTime() === 86400000)) {
+      streak++;
+    } else {
+      streak = 1;
+    }
+    if (streak > longestStreak) longestStreak = streak;
+    prev = d;
+  }
+  // Current streak: check if last date is today or yesterday
+  if (dates.length) {
+    const last = dates[dates.length - 1];
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    if (last === today || last === yesterday) currentStreak = streak;
+  }
+  return { totalEntries, totalWords, daysWritten, currentStreak, longestStreak };
+}
 import Database from 'better-sqlite3';
 import path from 'path';
 
-import { PomodoroRow, ReminderRow } from './types';
+import { JournalRow, NoteRow, PomodoroRow, ReminderRow } from './types';
 
 const DB_PATH = path.resolve(process.cwd(), 'reminders.db');
 
@@ -40,6 +83,22 @@ function initTables(d: Database.Database) {
       text TEXT NOT NULL,
       remind_at TEXT NOT NULL,
       sent INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      number TEXT NOT NULL,
+      text TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      done INTEGER NOT NULL DEFAULT 0,
+      done_at TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS journal_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      number TEXT NOT NULL,
+      text TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
@@ -178,4 +237,69 @@ export function updateReminder(
 
 export function markReminderSent(id: number): void {
   getDb().prepare('UPDATE reminders SET sent = 1 WHERE id = ?').run(id);
+}
+
+// ---- Notes ----
+
+export function createNote(chatId: string, text: string): number {
+  const result = getDb()
+    .prepare('INSERT INTO notes (number, text, done, done_at) VALUES (?, ?, 0, NULL)')
+    .run(chatId, text);
+  return result.lastInsertRowid as number;
+}
+
+
+export function getNotes(chatId: string): NoteRow[] {
+  return getDb()
+    .prepare('SELECT * FROM notes WHERE number = ? ORDER BY done ASC, created_at ASC')
+    .all(chatId) as NoteRow[];
+}
+
+export function getNotesByStatus(chatId: string, done: boolean): NoteRow[] {
+  return getDb()
+    .prepare('SELECT * FROM notes WHERE number = ? AND done = ? ORDER BY created_at ASC')
+    .all(chatId, done ? 1 : 0) as NoteRow[];
+}
+
+export function markNoteDone(id: number, chatId: string): boolean {
+  const result = getDb()
+    .prepare('UPDATE notes SET done = 1, done_at = datetime(\'now\') WHERE id = ? AND number = ? AND done = 0')
+    .run(id, chatId);
+  return (result as { changes: number }).changes > 0;
+}
+
+export function markNoteUndone(id: number, chatId: string): boolean {
+  const result = getDb()
+    .prepare('UPDATE notes SET done = 0, done_at = NULL WHERE id = ? AND number = ? AND done = 1')
+    .run(id, chatId);
+  return (result as { changes: number }).changes > 0;
+}
+
+export function deleteNote(id: number, chatId: string): boolean {
+  const result = getDb()
+    .prepare('DELETE FROM notes WHERE id = ? AND number = ?')
+    .run(id, chatId);
+  return (result as { changes: number }).changes > 0;
+}
+
+// ---- Journal ----
+export function createJournalEntry(chatId: string, text: string): void {
+  getDb()
+    .prepare('INSERT INTO journal_entries (number, text) VALUES (?, ?)')
+    .run(chatId, text);
+}
+
+export function getJournalEntries(chatId: string, limit = 5): JournalRow[] {
+  return getDb()
+    .prepare(
+      'SELECT * FROM journal_entries WHERE number = ? ORDER BY created_at DESC LIMIT ?',
+    )
+    .all(chatId, limit) as JournalRow[];
+}
+
+export function deleteJournalEntry(id: number, chatId: string): boolean {
+  const result = getDb()
+    .prepare('DELETE FROM journal_entries WHERE id = ? AND number = ?')
+    .run(id, chatId);
+  return (result as { changes: number }).changes > 0;
 }

@@ -1,6 +1,6 @@
 {
-  "name": "whatsapp-reminders",
-  "version": "0.1.0",
+  "name": "remi-whatsapp-bot",
+  "version": "0.2.0",
   "description": "A bot that sends reminders to a number on WhatsApp",
   "main": "main.ts",
   "scripts": {

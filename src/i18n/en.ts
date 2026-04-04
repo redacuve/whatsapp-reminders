@@ -1,18 +1,88 @@
-import { CommandDef, CommandKey, EMOJI_KEYWORDS, Locale } from '../types';
+import { CommandEntry, EMOJI_KEYWORDS, Locale } from '../types';
+import { buildCommandList, buildDisplayCommands } from './builders';
 
-const commands: Record<CommandKey, CommandDef> = {
-  help: { name: 'Help', desc: 'Show available commands' },
-  msg: { name: 'Motivate', desc: 'Send a motivational message now' },
-  status: { name: 'Status', desc: 'Show bot status' },
-  ping: { name: 'Ping', desc: 'Responds with pong' },
-  lang: {
+const defs: Record<string, CommandEntry> = {
+  hello: {
+    triggers: ['hello', 'hi', 'hey'],
+  },
+  bye: {
+    triggers: ['bye', 'goodbye', 'see you'],
+  },
+  remi: {
+    triggers: ['remi', 'who are you', 'what can you do'],
+  },
+  ping: {
+    triggers: ['ping'],
+    name: 'Ping',
+    desc: "Check if I'm alive",
+  },
+  status: {
+    triggers: ['status'],
+    name: 'Status',
+    desc: 'See your info & mine',
+  },
+  help: {
+    triggers: ['help', '?'],
+    name: 'Help',
+    desc: 'See all my productivity commands',
+  },
+  message: {
+    triggers: ['message', 'msg', 'motivate'],
+    name: 'Motivate',
+    desc: 'Get a motivational message',
+    trigger: 'msg',
+    emoji: '💪',
+    featureName: 'Motivational messages',
+    featureDesc: 'Instant inspiration on demand',
+  },
+  language: {
+    triggers: ['language', 'lang'],
+    subcommandTriggers: {
+      set: ['set', 'change'],
+      help: ['help', 'info', 'instructions'],
+    },
     name: 'Language',
-    desc: 'Change your language — lang <code> (en, es, pt)',
+    desc: 'Change language (en/es/pt)',
+    trigger: 'lang',
+    emoji: '🌐',
+    featureName: 'Multi-language',
+    featureDesc: 'I speak English, Spanish & Portuguese',
+  },
+  pomodoro: {
+    triggers: ['pomodoro', 'pomo', 'timer'],
+    subcommandTriggers: {
+      start: ['start', 'begin', 'go'],
+      status: ['status', 'check', 'current'],
+      cancel: ['cancel', 'stop', 'end'],
+      help: ['help', 'info', 'instructions'],
+    },
+    name: 'Pomodoro',
+    desc: 'Focus timer sessions',
+    emoji: '⏱️',
+    featureName: 'Pomodoro timers',
+    featureDesc: 'Stay focused with timed sessions',
+    helpLines: [
+      'pomodoro [mins] [task] — start (defaults: 25 min, "Focus session")',
+      'pomodoro status — show active timer',
+      'pomodoro cancel — cancel active timer',
+      'pomodoro help — show this list',
+    ],
   },
   reminder: {
+    triggers: ['remind', 'reminder'],
+    subcommandTriggers: {
+      list: ['list'],
+      help: ['help'],
+      delete: ['delete', 'del'],
+      edit: ['edit'],
+    },
     name: 'Reminder',
-    desc: 'Set and manage one-off reminders',
-    subcommands: [
+    desc: 'Set and manage reminders',
+    trigger: 'remind',
+    emoji: '⏰',
+    featureName: 'Reminders',
+    featureDesc: "I'll ping you at the right time",
+    helpLines: [
       'remind 14:30 call the doctor — today at 14:30',
       'remind +30 check email — in 30 minutes',
       'remind tomorrow 9:00 meeting — tomorrow at 09:00',
@@ -26,17 +96,58 @@ const commands: Record<CommandKey, CommandDef> = {
       'remind help — show this list',
     ],
   },
-  pomodoro: {
-    name: 'Pomodoro',
-    desc: 'Pomodoro timer',
-    subcommands: [
-      'pomodoro [mins] [task] — start (defaults: 25 min, "Focus session")',
-      'pomodoro status — show active timer',
-      'pomodoro cancel — cancel active timer',
-      'pomodoro help — show this list',
+  note: {
+    triggers: ['note'],
+    subcommandTriggers: {
+      list: ['list'],
+      help: ['help'],
+      done: ['done', 'completed', 'finished', 'checked'],
+      undone: ['undone', 'pending', 'uncheck'],
+      delete: ['delete', 'remove', 'del', 'erase'],
+    },
+    name: 'Note',
+    desc: 'To-do style notes: mark as done, organize tasks',
+    emoji: '📝',
+    featureName: 'Quick notes',
+    featureDesc: 'To-dos you can check off',
+    helpLines: [
+      'note <text> — add a new note',
+      'note list — show all notes (pending first, then done)',
+      'note done <n> — mark note #n as done',
+      'note undone <n> — mark note #n as not done',
+      'note delete <n> — delete note #n',
+      'note help — show this list',
+    ],
+  },
+  journal: {
+    triggers: ['journal'],
+    subcommandTriggers: {
+      list: ['list'],
+      help: ['help'],
+      random: ['random'],
+      date: ['date', 'day', 'entrydate'],
+      stats: ['stats', 'statistics', 'stat', 'summary'],
+      delete: ['delete', 'remove', 'del', 'erase'],
+    },
+    name: 'Journal',
+    desc: 'Write personal reflections, see stats, revisit by date',
+    emoji: '📓',
+    featureName: 'Personal journal',
+    featureDesc: 'Reflect, track, and explore your thoughts',
+    helpLines: [
+      'journal <text> — write a new entry',
+      'journal list — show last 5 entries',
+      'journal random — show a random entry',
+      'journal date <YYYY-MM-DD> — show entry for a date',
+      'journal stats — show your journal statistics',
+      'journal delete <n> — delete entry #n',
+      'journal help — show this list',
     ],
   },
 };
+
+const commandList = buildCommandList(defs);
+const commands = buildDisplayCommands(defs);
 
 const motivationalMessages = [
   "Good morning. Today is a new day to build something great. What's your goal?",
@@ -88,10 +199,15 @@ export const en: Locale = {
     tonight: 21,
   },
   commands,
+  commandList,
   motivationalMessages,
   responses: {
+    journalKeywords: ['journal'],
+    noteKeywords: ['note'],
+    remiKeywords: ['remi'],
+    aboutKeywords: ['about', 'about remi'],
     motivatePrefix: "Here's a motivational message for you! 💪",
-    status: 'Bot is running smoothly! ✅',
+    status: 'Remi is running smoothly! ✅',
     ping: 'Pong! 🏓',
     unknown:
       "Hmm, I'm not sure what you mean 🤔 Type *help* and I'll show you everything I can do!",
@@ -225,8 +341,8 @@ export const en: Locale = {
       'nite',
     ],
     helpHint: '\n\n_Also, I can chat! Type *remi* to learn more about me. 💬_',
-    remiAbout: (name: string) =>
-      `Hey, ${name}! 🤖 I'm *Remi*, and here's everything I understand:\n\n📋 *Commands*\n  › *help* — see all my productivity commands\n  › *msg* — get a motivational message\n  › *pomodoro* — focus timer sessions\n  › *remind* — set and manage reminders\n  › *lang* — change language (en/es/pt)\n  › *status* — see your info & mine\n  › *ping* — check if I'm alive\n\n💬 *I also understand casual conversation:*\n  › Greetings — _"hola", "hey", "good morning"_\n  › Farewells — _"bye", "see you", "good night"_\n  › Thanks — _"thanks", "thank you"_\n  › How are you? — _"how are you", "how r u"_\n  › Compliments — _"nice", "awesome", "great"_\n  › Apologies — _"sorry", "my bad"_\n  › Laughter — _"haha", "lol"_\n  › Emojis — _👍 🔥 💪 🙌 👏 🎉_\n  › Who are you? — _"who is remi"_\n  › What can you do? — _"what can you do"_\n\nI adapt to the time of day and call you by name. Feel free to talk to me like a friend! 😊`,
+    remiAbout: (name: string, commandsList: string) =>
+      `Hey, ${name}! ✨ I'm *Remi*, and here's everything I understand:\n\n📋 *Commands*\n${commandsList}\n\n💬 *I also understand casual conversation:*\n  › Greetings — _"hola", "hey", "good morning"_\n  › Farewells — _"bye", "see you", "good night"_\n  › Thanks — _"thanks", "thank you"_\n  › How are you? — _"how are you", "how r u"_\n  › Compliments — _"nice", "awesome", "great"_\n  › Apologies — _"sorry", "my bad"_\n  › Laughter — _"haha", "lol"_\n  › Emojis — _👍 🔥 💪 🙌 👏 🎉_\n  › Who are you? — _"who is remi"_\n  › What can you do? — _"what can you do"_\n\nI adapt to the time of day and call you by name. Feel free to talk to me like a friend! 😊`,
     farewells: [
       'See you later! 👋 Go crush it.',
       "Bye! I'll be right here when you need me. 💪",
@@ -258,10 +374,10 @@ export const en: Locale = {
     ],
     howAreYou: [
       'All systems go! ⚡ More importantly, how are *you* doing?',
-      'Running smooth and ready to help! What can I do for you? 🤖',
+      'Running smooth and ready to help! What can I do for you? ⚡',
       "I'm great! Ready to tackle anything. What's on your plate today?",
       'Here and fully charged! ⚡ What do you need?',
-      'Living my best bot life! 😄 How about you?',
+      'Living my best Remi life! 😄 How about you?',
       'Never been better! Got big plans today? 🚀',
       "On top of the world! Well, on top of your chat at least. 😏 What's up?",
     ],
@@ -285,7 +401,7 @@ export const en: Locale = {
       'whos remi',
     ],
     whoAreYou: [
-      "I'm *Remi*! 🤖 Your personal productivity sidekick right here in WhatsApp. I can motivate you, run pomodoro timers, and set reminders so you never miss a thing. Type *help* to see it all!",
+      "I'm *Remi*! ✨ Your personal productivity sidekick right here in WhatsApp. I can motivate you, run pomodoro timers, and set reminders so you never miss a thing. Type *help* to see it all!",
       "Hey! I'm *Remi* — think of me as your pocket productivity partner. 💪 Motivational messages, pomodoro focus sessions, and smart reminders. That's my jam!",
       "Name's *Remi*! I live in your WhatsApp to help you stay focused and organized. Timers, reminders, motivation — I've got the whole kit. Type *help* to explore!",
     ],
@@ -297,9 +413,8 @@ export const en: Locale = {
       'how does this work',
       'features',
     ],
-    whatCanYouDo: [
-      "Here's what I can help you with! 🚀\n\n💪 *Motivational messages* — instant inspiration on demand\n⏱️ *Pomodoro timers* — stay focused with timed sessions\n⏰ *Reminders* — I'll ping you at the right time\n🌐 *Multi-language* — I speak English, Spanish & Portuguese\n\nType *help* for the full command list!",
-    ],
+    whatCanYouDo: (featuresSection: string) =>
+      `Here's what I can help you with! 🚀\n\n${featuresSection}\n\nType *help* for the full command list!`,
     laughKeywords: [
       'haha',
       'hahaha',
@@ -349,5 +464,42 @@ export const en: Locale = {
       'Water under the bridge! What can I help with? 😊',
       "Totally fine! We've all been there. Ready when you are! 💪",
     ],
+    noteAdded: (text: string) => `📝 Got it! *${text}*`,
+    noteDeleted: (text: string) => `🗑️ Deleted: *${text}*`,
+    noteList: '📝 *Your notes:*',
+    noteEmpty: '📭 No notes saved yet.',
+    noteNotFound: '❌ Note not found. Use *note list* to see the numbers.',
+    noteListCmd: 'list',
+    noteDeleteCmd: ['delete', 'remove', 'del', 'erase'],
+    noteHelpCmd: 'help',
+    notePendingList: '⏳ Pending:',
+    noteDoneList: '✅ Done:',
+    noteDoneCmd: ['done', 'completed', 'finished', 'checked'],
+    noteUndoneCmd: ['undone', 'pending', 'not done', 'uncheck'],
+    noteMarkedDone: (text: string) => `✅ Marked as done: *${text}*`,
+    noteMarkedUndone: (text: string) => `⏳ Marked as pending: *${text}*`,
+    noteAlreadyDone: (text: string) => `Already done: *${text}*`,
+    noteAlreadyPending: (text: string) => `Already pending: *${text}*`,
+    journalAdded: (preview: string) =>
+      `📓 Saved! _${preview}_ — written down and locked in. 🔒`,
+    journalDeleted: '🗑️ Journal entry deleted.',
+    journalList: '📓 *Your recent journal entries:*',
+    journalEmpty: '📭 No journal entries yet. Write your first one!',
+    journalNotFound:
+      '❌ Entry not found. Use *journal list* to see the numbers.',
+    journalListCmd: 'list',
+    journalDeleteCmd: ['delete', 'remove', 'del', 'erase'],
+    journalHelpCmd: 'help',
+    journalRandomCmd: 'random',
+    journalRandom: '📓 Random entry:',
+    journalDateCmd: ['date', 'day', 'entrydate'],
+    journalStatsCmd: ['stats', 'statistics', 'stat', 'summary'],
+    journalStats: (stats: any) => `📊 *Journal stats:*
+    Entries: ${stats.totalEntries}
+    Words: ${stats.totalWords}
+    Days written: ${stats.daysWritten}
+    Current streak: ${stats.currentStreak}
+    Longest streak: ${stats.longestStreak}`,
+    languageHelp: `To change language, type: \`lang set <language_code>\` Available languages: English (en), Spanish (es), Portuguese (pt)`,
   },
 };

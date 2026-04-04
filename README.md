@@ -61,7 +61,7 @@ src/
 ├── config.ts      # Environment variables (phone numbers, paths, language)
 ├── commands.ts    # Command parsing and handlers
 ├── scheduler.ts   # Cron jobs — checks due reminders and pomodoros every minute
-├── db.ts          # SQLite layer (settings, reminders, pomodoros)
+├── db.ts          # SQLite layer (settings, reminders, pomodoros, notes, journal)
 ├── time.ts        # Time expression parser and formatter
 ├── logger.ts      # Pino logger instance
 ├── types.ts       # Shared TypeScript interfaces
@@ -142,6 +142,8 @@ Commands are case-insensitive:
 | `lang <code>` | — | Change your language (`en`, `es`, `pt`) |
 | `remind` | `recordar`, `lembrar` | Set and manage one-off reminders |
 | `pomodoro` | `pomo` | Start, check, or cancel a pomodoro timer |
+| `note` | `nota` | Save and manage quick notes |
+| `journal` | `diario`, `diário` | Write and browse personal journal entries |
 
 ### Reminders
 
@@ -215,6 +217,34 @@ All forms work with `pomodoro` or `pomo` (or the locale equivalent):
 
 When the timer expires, the bot sends a completion message directly to the chat that started it.
 
+### Notes
+
+Quick notes are plain text, stored and numbered. No timestamps needed — just capture the thought.
+
+| Input | Description |
+|---|---|
+| `note buy milk` | Save a new note |
+| `note list` | Show all notes numbered 1, 2, 3… |
+| `note delete <n>` | Delete note #n |
+| `note help` | Show the subcommand list |
+
+> In Spanish: `nota lista` / `nota borrar <n>`  
+> In Portuguese: `nota lista` / `nota apagar <n>`
+
+### Journal
+
+Personal journal entries are auto-timestamped. The list shows the 5 most recent entries with a date and preview. Long texts are stored in full.
+
+| Input | Description |
+|---|---|
+| `journal Today was a great day` | Write a new entry |
+| `journal list` | Show last 5 entries (date + 60-char preview) |
+| `journal delete <n>` | Delete entry #n from the list |
+| `journal help` | Show the subcommand list |
+
+> In Spanish: `diario lista` / `diario borrar <n>`  
+> In Portuguese: `diário lista` / `diário apagar <n>`
+
 ### `status` response includes
 
 **Your info:** name, display name, number, WhatsApp ID, business account flag, chat context, message timestamp.
@@ -241,11 +271,11 @@ The `help`, `pomodoro`, and completion messages will instantly switch to the sel
 
 ### Supported languages
 
-| Code | Language | Pomodoro keywords | Reminder keywords |
-|---|---|---|---|
-| `en` | 🇺🇸 English | `help`, `status`, `cancel` | `list`, `delete`, `edit`, `help` |
-| `es` | 🇲🇽 Español | `ayuda`, `estado`, `cancelar` | `lista`, `borrar`, `editar`, `ayuda` |
-| `pt` | 🇧🇷 Português | `ajuda`, `status`, `cancelar` | `lista`, `apagar`, `editar`, `ajuda` |
+| Code | Language | Pomodoro keywords | Reminder keywords | Note keywords | Journal keywords |
+|---|---|---|---|---|---|
+| `en` | 🇺🇸 English | `help`, `status`, `cancel` | `list`, `delete`, `edit`, `help` | `list`, `delete`, `help` | `list`, `delete`, `help` |
+| `es` | 🇲🇽 Español | `ayuda`, `estado`, `cancelar` | `lista`, `borrar`, `editar`, `ayuda` | `lista`, `borrar`, `ayuda` | `lista`, `borrar`, `ayuda` |
+| `pt` | 🇧🇷 Português | `ajuda`, `status`, `cancelar` | `lista`, `apagar`, `editar`, `ajuda` | `lista`, `apagar`, `ajuda` | `lista`, `apagar`, `ajuda` |
 
 ### Adding a new language
 
