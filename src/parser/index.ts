@@ -76,9 +76,30 @@ function parseInput(input: string, locale: Locale) {
     };
   }
 
-  // Natural language fallback
   const lower = input.toLowerCase().trim();
   const trimmed = input.trim();
+
+  // Multi-word trigger match: the first token didn't match, but the full input might
+  // match a multi-word trigger (e.g. "buenos días", "hasta luego", "quién eres")
+  const multiWordCommandKey = Object.keys(locale.commandList).find((key) =>
+    locale.commandList[key].list.some(
+      (alias: string) => alias.toLowerCase() === lower,
+    ),
+  );
+
+  if (multiWordCommandKey) {
+    const command = commands[multiWordCommandKey as keyof typeof commands];
+    const result = command.parse([], { locale });
+    if (!result.error) {
+      return {
+        command: multiWordCommandKey,
+        action: result.action,
+        params: result.params,
+      };
+    }
+  }
+
+  // Natural language fallback
   const r = locale.responses;
 
   if (r.thanksKeywords.some((k) => lower.includes(k)))

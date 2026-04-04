@@ -3,7 +3,16 @@ import { buildCommandList, buildDisplayCommands } from './builders';
 
 const defs: Record<string, CommandEntry> = {
   hello: {
-    triggers: ['hola', 'ola', 'hey', 'buenas', 'buenos días', 'buenos dias'],
+    triggers: [
+      'hola',
+      'ola',
+      'hey',
+      'buenas',
+      'buenos días',
+      'buenos dias',
+      'buenas tardes',
+      'buenas noches',
+    ],
   },
   bye: {
     triggers: ['chao', 'adiós', 'adios', 'hasta luego', 'nos vemos'],
@@ -28,7 +37,7 @@ const defs: Record<string, CommandEntry> = {
     desc: 'Ver tu info y la mía',
   },
   help: {
-    triggers: ['ayuda', 'help', '?'],
+    triggers: ['ayuda', 'help', '?', 'ayudame', 'instrucciones', 'info'],
     name: 'Ayuda',
     desc: 'Ver todos mis comandos de productividad',
   },
@@ -82,6 +91,7 @@ const defs: Record<string, CommandEntry> = {
       'recuerdame',
       'recordatorio',
       'recordatorios',
+      'recuerda',
     ],
     subcommandTriggers: {
       list: ['lista'],
