@@ -148,6 +148,16 @@ export interface Locale {
     remiKeywords: string[];
     aboutKeywords: string[];
     languageHelp: string;
+    // Recurring reminders (optional — new feature)
+    weekDayAliases?: Record<string, number>;
+    weekDayNames?: string[];
+    recurringAdded?: (text: string, desc: string) => string;
+    recurringNextLabel?: string;
+    recurringIntervalLabel?: (mins: number) => string;
+    recurringWeeklyLabel?: (dayName: string, time: string) => string;
+    recurringMonthlyLabel?: (dom: number, time: string) => string;
+    recurringWeekdaysLabel?: (time: string) => string;
+    recurringWeekendsLabel?: (time: string) => string;
   };
 }
 
@@ -262,4 +272,6 @@ export interface ReminderRow {
   remind_at: string;
   sent: number;
   created_at: string;
+  recurrence_type: string | null;
+  recurrence_value: string | null;
 }

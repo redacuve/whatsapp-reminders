@@ -25,6 +25,7 @@ import {
   startPomodoroHandler,
 } from './pomodoro';
 import {
+  createRecurringReminderHandler,
   createReminderHandler,
   deleteReminderHandler,
   editReminderHandler,
@@ -119,6 +120,9 @@ async function executeCommand(
       } else if (action === 'create') {
         const { input } = (params ?? {}) as { input: string };
         await send(createReminderHandler(input, ctx).message);
+      } else if (action === 'interval' || action === 'weekly' || action === 'monthly' || action === 'weekdays' || action === 'weekends') {
+        const { value, text } = (params ?? {}) as { value: string; text: string };
+        await send(createRecurringReminderHandler(action, value, text, ctx).message);
       }
       break;
     case 'note':

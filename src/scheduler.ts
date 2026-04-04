@@ -2,6 +2,7 @@ import cron from 'node-cron';
 
 import * as db from './db';
 import { getLocale } from './i18n';
+import { computeNextOccurrence } from './time';
 
 type SendToFn = (chatId: string, msg: string) => Promise<void>;
 
@@ -16,9 +17,18 @@ export function startScheduler(sendTo: SendToFn): void {
 async function checkReminders(sendTo: SendToFn): Promise<void> {
   const due = db.getDueReminders();
   for (const r of due) {
-    db.markReminderSent(r.id);
     const loc = getLocale(db.getLanguage(r.number) || 'en');
     await sendTo(r.number, loc.responses.reminderDone(r.text));
+    if (r.recurrence_type && r.recurrence_value) {
+      const next = computeNextOccurrence(
+        r.recurrence_type,
+        r.recurrence_value,
+        new Date(),
+      );
+      db.advanceRecurringReminder(r.id, next);
+    } else {
+      db.markReminderSent(r.id);
+    }
   }
 }
 
