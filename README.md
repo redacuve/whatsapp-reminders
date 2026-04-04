@@ -12,159 +12,146 @@
   </a>
 </p>
 
-<!-- Project Header -->
-<p align="center">
-  <h1 align="center">📱 Remi — WhatsApp Productivity Bot</h1>
-  <p align="center">
-    Meet <strong>Remi</strong>, your personal productivity sidekick that lives inside WhatsApp. Stay motivated, manage timers and reminders, and get things done — all by sending a message.
-  <br>
-  <br>
-    <a href="https://github.com/redacuve/whatsapp-reminders"><strong>Explore the repo »</strong></a>
-  <br>
-    <a href="https://github.com/redacuve/whatsapp-reminders/issues">Request Feature</a>
-  </p>
-</p>
+# 📱 Remi — WhatsApp Productivity Bot
+
+Remi is your personal productivity sidekick that lives inside WhatsApp. Stay motivated, manage timers and reminders, and get things done — all by sending a message. No extra apps, no Meta Business API, just chat.
+
+---
 
 ## Table of Contents
 
-* [About the Project](#about-the-project)
-* [Built With](#built-with)
-* [Architecture](#architecture)
-* [Documentation](#documentation)
-* [Getting Started](#getting-started)
-* [Access Control (Gating)](#access-control-gating)
-* [Commands](#commands)
-* [Internationalization](#internationalization)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Sample Commands](#sample-commands)
+- [Project Structure & Architecture](#project-structure--architecture)
+- [Documentation](#documentation)
+- [Getting Started](#getting-started)
+- [Access Control (Gating)](#access-control-gating)
+- [Commands](#commands)
+- [Internationalization](#internationalization)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-## About The Project
+---
 
-**Remi** is a WhatsApp bot built for personal productivity. It runs locally on your machine using `whatsapp-web.js` (no Meta Business API needed) and supports multiple languages out of the box.
+## ✨ Features
 
-Remi greets you by name, adapts to the time of day, reacts to emojis, and responds to casual conversation — all while handling motivational messages, pomodoro timers, and both one-off and recurring reminders with flexible time expressions. Every user has their own language preference stored locally.
+- ⏰ Flexible reminders (one-off & recurring, natural language)
+- 🍅 Pomodoro focus timers
+- 📝 Quick notes
+- 📔 Personal journal
+- 💬 Conversational fallback (NLP)
+- 🌎 Multi-language (English, Spanish, Portuguese)
+- 🔒 Access control (per number/group)
+- 🗄️ Local SQLite storage
 
-## Built With
+---
 
-* [TypeScript](https://www.typescriptlang.org/)
-* [Node.js](https://nodejs.org/)
-* [whatsapp-web.js](https://wwebjs.dev/) — WhatsApp Web client (no Business API required)
-* [pino](https://getpino.io/) + [pino-pretty](https://github.com/pinojs/pino-pretty) — Structured, colorized logging
-* [tsx](https://github.com/privatenumber/tsx) — TypeScript execution for development
-* [prettier](https://prettier.io/) + [eslint](https://eslint.org/) — Code formatting and linting
+## 🚀 Quick Start
 
-## Architecture
+**Requirements:**
+- Node.js v18+
+- [pnpm](https://pnpm.io/)
+- WhatsApp account (scan QR on first run)
 
-```
-src/
-├── main.ts              # Entry point — WhatsApp client, message routing, gating
-├── config.ts            # Environment variables (phone numbers, paths, language)
-├── handleCommand.ts     # Orchestrator: parse → error-check → execute
-├── scheduler.ts         # Cron jobs — checks due reminders and pomodoros every minute
-├── db.ts                # SQLite layer (settings, reminders, pomodoros, notes, journal)
-├── time.ts              # Time expression parser and formatter
-├── helper.ts            # Pure utilities: pickRandom, getTimeOfDay
-├── logger.ts            # Pino logger instance
-├── types.ts             # Shared TypeScript interfaces
-├── i18n/
-│   ├── index.ts         # getLocale(), buildCommandsList(), buildFeaturesList()
-│   ├── builders.ts      # buildCommandList(), buildDisplayCommands() from CommandEntry
-│   ├── en.ts            # 🇺🇸 English locale
-│   ├── es.ts            # 🇲🇽 Spanish locale
-│   └── pt.ts            # 🇧🇷 Portuguese locale
-├── parser/
-│   ├── index.ts         # Main parse function: alias matching + NLP fallback
-│   └── command/
-│       ├── index.ts     # Parser registry for all commands
-│       ├── simple.ts    # help, status, ping, message, hello, bye, remi
-│       ├── pomodoro.ts  # start / status / cancel / help
-│       ├── language.ts  # set / help
-│       ├── reminder.ts  # list / help / delete / edit / create / recurring
-│       ├── note.ts      # list / help / done / undone / delete / create
-│       └── journal.ts   # list / help / random / date / stats / delete / create
-└── command/
-    ├── index.ts         # executeCommand() — routes ParseResult to handlers
-    ├── simple.ts        # help, status, ping, message, hello, bye, remi handlers
-    ├── nlp.ts           # nlpHandler — 8 conversational patterns
-    ├── pomodoro.ts      # Pomodoro handlers
-    ├── language.ts      # Language handlers
-    ├── reminder.ts      # Reminder handlers
-    ├── note.ts          # Note handlers
-    └── journal.ts       # Journal handlers
+```sh
+git clone https://github.com/redacuve/whatsapp-reminders.git
+cd whatsapp-reminders
+pnpm install
+# Create a .env file (see below)
+pnpm dev
+# Scan the QR code with WhatsApp
 ```
 
-The pipeline for every incoming message is:
-
+**.env example:**
 ```
-main.ts → handleCommand.ts → parser/index.ts → command/index.ts → command/<name>.ts
+MY_NUMBER=YOUR_NUMBER@c.us
+MY_NUMBER_LID=YOUR_LID@lid   # optional, for newer WhatsApp accounts
+MY_GROUP=YOUR_GROUP@g.us     # optional, restrict to a specific group
 ```
 
-## Documentation
+Send `ping` to Remi on WhatsApp. If you get `pong 🏓`, you’re ready!
 
-Full developer documentation lives in two folders:
+---
 
-### `/context/` — for AI agents and quick orientation
+## 💬 Sample Commands
 
-| File | Description |
+Send these to Remi on WhatsApp:
+
+| Message | What happens? |
 |---|---|
-| [context/product.md](context/product.md) | What Remi is, who it's for, constraints |
-| [context/rules.md](context/rules.md) | Coding rules and invariants every contributor must follow |
-| [context/glossary.md](context/glossary.md) | Canonical definitions for every term, concept, and interface |
+| `remind 14:30 call the doctor` | Sets a reminder for today at 14:30 |
+| `remind interval 30 drink water` | Recurring reminder every 30 min |
+| `pomodoro 20 write report` | Starts a 20-min focus timer |
+| `note buy milk` | Saves a quick note |
+| `journal Had a great day!` | Adds a journal entry |
+| `lang es` | Switches your language to Spanish |
+| `help` | Lists all commands |
 
-### `/docs/` — deep technical reference
+See [Commands](#commands) for more.
 
-| File | Description |
-|---|---|
-| [docs/architecture.md](docs/architecture.md) | Full file map, message pipeline, per-command parser and handler reference, locale system, DB schema |
-| [docs/api.md](docs/api.md) | Every public function, module, and interface with signatures |
-| [docs/decisions.md](docs/decisions.md) | Architectural Decision Records (ADRs) explaining the key design choices |
+---
 
-## Getting Started
+## 📂 Project Structure & Architecture
 
-### Prerequisites
+Remi is organized for clarity and extensibility. See [context/architecture.md](context/architecture.md) and [docs/architecture.md](docs/architecture.md) for full details.
 
-* [Node.js](https://nodejs.org/) v18+
-* [pnpm](https://pnpm.io/)
+**Pipeline:**
 
-### Installation
+```
+WhatsApp message
+  → main.ts           resolve language + locale, build MessageContext
+  → handleCommand.ts  parse input, dispatch to executor
+  → parser/index.ts   tokenize → resolve aliases → NLP fallback → ParseResult
+  → command/index.ts  executeCommand: route ParseResult to handler
+  → command/*.ts      handler: DB + locale → HandlerResult { status, message }
+  → send(message)     reply to WhatsApp
+```
+
+**Layers:**
+- Transport: WhatsApp client lifecycle, context building
+- Coordination: Parsing, routing, error handling
+- Handlers: Pure functions, DB access, locale
+
+---
+
+## 📚 Documentation
+
+- [context/](context/) — orientation, product, rules, glossary
+- [docs/](docs/) — deep technical reference, API, architecture, decisions
+
+---
+
+## 🛠️ Getting Started
 
 1. Clone the repo
    ```sh
    git clone https://github.com/redacuve/whatsapp-reminders.git
    cd whatsapp-reminders
    ```
-
 2. Install dependencies
    ```sh
    pnpm install
    ```
-
-3. Create a `.env` file at the root:
-   ```env
-   MY_NUMBER=YOUR_NUMBER@c.us
-   MY_NUMBER_LID=YOUR_LID@lid   # optional, for newer WhatsApp accounts
-   MY_GROUP=YOUR_GROUP@g.us     # optional, restrict to a specific group
-   ```
-   > **Tip:** Run the bot once without these set and send `status` — the bot will print its own `wid` in the startup logs so you can copy the exact value.
-
+3. Create a `.env` file at the root (see Quick Start above)
 4. Start the bot
    ```sh
    pnpm dev
    ```
-
 5. Scan the QR code with WhatsApp (first time only). On subsequent runs, the session is restored automatically from `.wwebjs_auth/`.
 
-### Build for production
-
+**Build for production:**
 ```sh
 pnpm build
 pnpm start
 ```
 
-## Access Control (Gating)
+---
 
-The bot uses environment variables to control who can interact with it. The logic is evaluated per incoming message:
+## 🔐 Access Control (Gating)
+
+Remi uses environment variables to control who can interact with it. See table below for behavior:
 
 | `MY_NUMBER` | `MY_GROUP` | Behavior |
 |---|---|---|
@@ -177,9 +164,11 @@ The bot uses environment variables to control who can interact with it. The logi
 
 All messages are still logged regardless of gating — only command processing is restricted.
 
-## Commands
+---
 
-Commands are case-insensitive:
+## 🗣️ Commands
+
+Commands are case-insensitive. See [context/product.md](context/product.md) for full details.
 
 | Command | Aliases | Description |
 |---|---|---|
@@ -311,37 +300,19 @@ Personal journal entries are auto-timestamped. The list shows the 5 most recent 
 
 **Bot info:** bot number, bot display name, platform (`android` / `iphone` / `smba`).
 
-## Internationalization
+---
 
-The bot supports multiple languages. Each user has their own language preference stored in SQLite — changing the language only affects that user, not others.
+## 🌍 Internationalization
+
+Remi supports English (`en`), Spanish (`es`), and Portuguese (`pt`). Each user’s language is stored per WhatsApp number. Change your language anytime with `lang <code>`.
 
 The default language for new users is resolved from the `LANG` environment variable (e.g. `es_MX.UTF-8` → `es`), with fallback to `en`.
 
-### Changing language
+To add a new language, create a new file in `src/i18n/` following the structure of `en.ts`, then register it in `src/i18n/index.ts`. Update the validation in `commands.ts` to include the new code. See [context/i18n.md](context/i18n.md) for more.
 
-Any user can change their own language at any time:
+---
 
-```
-lang en
-lang es
-lang pt
-```
-
-The `help`, `pomodoro`, and completion messages will instantly switch to the selected language for that user.
-
-### Supported languages
-
-| Code | Language | Pomodoro keywords | Reminder keywords | Note keywords | Journal keywords |
-|---|---|---|---|---|---|
-| `en` | 🇺🇸 English | `help`, `status`, `cancel` | `list`, `delete`, `edit`, `help` | `list`, `delete`, `help` | `list`, `delete`, `help` |
-| `es` | 🇲🇽 Español | `ayuda`, `estado`, `cancelar` | `lista`, `borrar`, `editar`, `ayuda` | `lista`, `borrar`, `ayuda` | `lista`, `borrar`, `ayuda` |
-| `pt` | 🇧🇷 Português | `ajuda`, `status`, `cancelar` | `lista`, `apagar`, `editar`, `ajuda` | `lista`, `apagar`, `ajuda` | `lista`, `apagar`, `ajuda` |
-
-### Adding a new language
-
-Create a new file in `src/i18n/` following the structure of `en.ts`, then register it in `src/i18n/index.ts`. Update the validation in `commands.ts` to include the new code.
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -349,11 +320,17 @@ Create a new file in `src/i18n/` following the structure of `en.ts`, then regist
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+See [context/rules.md](context/rules.md) for coding standards.
 
-Distributed under the ISC License. See `LICENSE` for more information.
+---
 
-## Contact
+## 📝 License
+
+Distributed under the ISC License. See [LICENSE](LICENSE) for more information.
+
+---
+
+## 📬 Contact
 
 Rey David Cuevas Vela - [@redacuve](https://twitter.com/redacuve) - [redacuve@gmail.com](mailto:redacuve@gmail.com) - [linkedin.com/in/redacuve/](https://www.linkedin.com/in/redacuve/)
 
